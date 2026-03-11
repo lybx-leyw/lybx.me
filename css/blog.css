@@ -1,0 +1,312 @@
+/* ============================================
+   Blog 页面样式
+   ============================================ */
+
+/* Blog Main Container */
+.blog-main {
+    max-width: 900px;
+    margin: 120px auto 60px;
+    padding: 0 2rem;
+}
+
+/* Blog Article */
+.blog-article {
+    background: var(--bg-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Blog Meta */
+.blog-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+}
+
+.blog-date {
+    color: var(--text-lighter);
+    font-size: 0.9rem;
+    font-family: var(--font-sans);
+}
+
+.blog-category {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Blog Title */
+.blog-title {
+    font-family: var(--font-serif);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+}
+
+/* Blog Author */
+.blog-author {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    background: var(--bg-alt);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+}
+
+.author-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.author-title {
+    font-size: 0.95rem;
+    color: var(--text-light);
+}
+
+/* Table of Contents */
+.blog-toc {
+    background: var(--bg-alt);
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.blog-toc h3 {
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.toc-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.toc-list li {
+    margin-bottom: 0.75rem;
+}
+
+.toc-list a {
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: block;
+    padding: 0.25rem 0;
+}
+
+.toc-list a:hover {
+    color: var(--primary-color);
+    padding-left: 0.5rem;
+}
+
+/* Blog Section */
+.blog-section {
+    margin-bottom: 3rem;
+    padding: 0;
+}
+
+.blog-section h2 {
+    font-family: var(--font-serif);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.blog-section h3 {
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+    margin: 2rem 0 1rem 0;
+}
+
+.blog-section h4 {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin: 1.5rem 0 1rem 0;
+}
+
+/* Paragraph */
+.blog-paragraph {
+    font-size: 1.05rem;
+    line-height: 1.9;
+    margin-bottom: 1.25rem;
+    color: var(--text-color);
+}
+
+/* Blog List */
+.blog-list {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+}
+
+.blog-list li {
+    margin-bottom: 0.75rem;
+    line-height: 1.8;
+    color: var(--text-color);
+}
+
+/* Blog Case */
+.blog-case {
+    background: var(--bg-alt);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--accent-color);
+}
+
+.blog-case h4 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+/* Blog Formula */
+.blog-formula {
+    background: var(--bg-alt);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 1rem;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    overflow-x: auto;
+}
+
+/* Blog Highlight */
+.blog-highlight {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 12px rgba(44, 62, 80, 0.15);
+}
+
+.blog-highlight strong {
+    display: block;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+/* Code Block */
+.code-block {
+    background: #1e1e1e;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.code-block pre {
+    margin: 0;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #d4d4d4d;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.code-block code {
+    color: #d4d4d4d;
+}
+
+/* Result Table */
+.result-table {
+    margin: 2rem 0;
+    overflow-x: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.result-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.result-table thead {
+    background: var(--primary-color);
+    color: white;
+}
+
+.result-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.result-table td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.95rem;
+}
+
+.result-table tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.result-table tbody tr:hover {
+    background: var(--bg-alt);
+}
+
+.result-table tbody tr.highlight-row {
+    background: #e8f5e8;
+    font-weight: 600;
+}
+
+.result-table tbody tr.highlight-row td {
+    border-bottom: 2px solid #4caf50;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .blog-main {
+        margin: 100px auto 40px;
+        padding: 0 1.5rem;
+    }
+
+    .blog-title {
+        font-size: 1.8rem;
+    }
+
+    .blog-section h2 {
+        font-size: 1.4rem;
+    }
+
+    .blog-section h3 {
+        font-size: 1.2rem;
+    }
+
+    .blog-paragraph {
+        font-size: 1rem;
+    }
+
+    .result-table {
+        font-size: 0.85rem;
+    }
+
+    .result-table th,
+    .result-table td {
+        padding: 0.625rem 0.75rem;
+    }
+}

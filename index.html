@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绿意不息 | 人工智能与心理学的探索</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">绿意不息</div>
+            <ul class="nav-menu">
+                <li><a href="#about">关于我</a></li>
+                <li><a href="#projects">项目展示</a></li>
+                <li><a href="#blog">深度学习Blog</a></li>
+                <li><a href="#vision">研究愿景</a></li>
+                <li><a href="#contact">联系我</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">人工智能探索与心理学启发</h1>
+            <p class="hero-subtitle">专注于深度学习、强化学习与神经网络的前沿技术探索，关注心理学对AI发展的启发</p>
+            <div class="hero-meta">
+                <span class="hero-author">浙江大学 人工智能专业 绿意不息</span>
+            </div>
+            <a href="#projects" class="btn btn-primary">探索项目</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title">关于我</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p class="paragraph">
+                        我是浙江大学人工智能专业学生绿意不息。我对深度学习、强化学习和神经网络架构有着浓厚的兴趣，致力于通过实践项目深入理解人工智能的核心原理与前沿技术。
+                    </p>
+                <p class="paragraph">
+                    从深度学习框架的底层实现，到强化学习算法的优化探索，再到大语言模型的高效微调，我通过一系列实践项目系统性地学习人工智能的各个领域。同时，我也关注心理学理论对AI发展的启发，例如注意力机制、强化学习、证据累积等概念都源自对人类认知过程的研究。
+                </p>
+                    <p class="paragraph">
+                        未来，我将继续深入探索人工智能的前沿技术，在模型架构优化、训练效率提升和算法创新等方面进行更多实践与探索。我相信，将人工智能技术与对人类认知的理解相结合，能够帮助我们设计出更智能、更高效的AI系统。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">项目展示</h2>
+            <div class="projects-grid">
+
+                <!-- TinySeek -->
+                <div class="project-card">
+                    <div class="project-number">01</div>
+                    <h3 class="project-title">TinySeek</h3>
+                    <div class="project-tags">
+                        <span class="tag">MoE</span>
+                        <span class="tag">门控机制</span>
+                        <span class="tag">参数高效微调</span>
+                    </div>
+                    <p class="project-description">
+                        基于混合专家模型（MoE）和样本级门控机制的探索性语言模型。实现了完整的预训练、SFT微调、LoRA和Prefix Tuning等方法。通过双路预测头（主预测头+候选头）支持差异化训练策略，并包含基于per-sample loss的专家分配监督机制。
+                    </p>
+                    <div class="project-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">66</span>
+                            <span class="stat-label">实验图片</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">12</span>
+                            <span class="stat-label">实验类型</span>
+                        </div>
+                    </div>
+                    <div class="project-links">
+                        <a href="https://github.com/lybx-leyw/tinyseek-ai" class="project-link" target="_blank">GitHub →</a>
+                    </div>
+                </div>
+
+                <!-- EvidenceFlow-UT -->
+                <div class="project-card">
+                    <div class="project-number">02</div>
+                    <h3 class="project-title">EvidenceFlow-UT</h3>
+                    <div class="project-tags">
+                        <span class="tag">Universal Transformer</span>
+                        <span class="tag">逐层监督损失</span>
+                        <span class="tag">证据累积</span>
+                    </div>
+                    <p class="project-description">
+                        面向Universal Transformer的逐层监督训练方法。受神经科学中漂移扩散模型启发，提出Loss_p（先验损失）引导证据在各层间流动并逼近目标状态。通过消融实验验证了Warm-up和逐层监督对模型稳定训练的关键作用。
+                    </p>
+                    <div class="project-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">21</span>
+                            <span class="stat-label">实验图片</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">3</span>
+                            <span class="stat-label">实验类型</span>
+                        </div>
+                    </div>
+                    <div class="project-links">
+                        <a href="https://github.com/lybx-leyw/tinyseek-UT" class="project-link" target="_blank">GitHub →</a>
+                    </div>
+                </div>
+
+                <!-- SnakeAI -->
+                <div class="project-card">
+                    <div class="project-number">03</div>
+                    <h3 class="project-title">SnakeAI</h3>
+                    <div class="project-tags">
+                        <span class="tag">强化学习</span>
+                        <span class="tag">GRPO</span>
+                        <span class="tag">PPO</span>
+                    </div>
+                    <p class="project-description">
+                        基于强化学习的贪吃蛇AI智能体，实现了多种先进算法。包括Double DQN、Rainbow DQN、PPO（近端策略优化）和GRPO（群组相对策略优化）。通过对比实验展示了不同算法在学习效率和最终性能上的差异，深入理解强化学习的优化机制。
+                    </p>
+                    <div class="project-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">7</span>
+                            <span class="stat-label">实验图片</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">7</span>
+                            <span class="stat-label">实验类型</span>
+                        </div>
+                    </div>
+                    <div class="project-links">
+                        <a href="https://github.com/lybx-leyw/Snake_AI" class="project-link" target="_blank">GitHub →</a>
+                    </div>
+                </div>
+
+                <!-- TinyTorch -->
+                <div class="project-card">
+                    <div class="project-number">04</div>
+                    <h3 class="project-title">TinyTorch</h3>
+                    <div class="project-tags">
+                        <span class="tag">C语言</span>
+                        <span class="tag">深度学习框架</span>
+                        <span class="tag">自动微分</span>
+                    </div>
+                    <p class="project-description">
+                        纯C语言实现的轻量级深度学习框架。从零构建了张量运算库、自动微分系统、神经网络层（全连接、卷积）和优化器。通过实现井字棋数据集的分类任务，深入理解深度学习框架的底层原理，包括计算图构建、反向传播和参数更新机制。
+                    </p>
+                    <div class="project-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">2</span>
+                            <span class="stat-label">实验图片</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">2</span>
+                            <span class="stat-label">示例</span>
+                        </div>
+                    </div>
+                    <div class="project-links">
+                        <a href="https://github.com/lybx-leyw/tinytorch" class="project-link" target="_blank">GitHub →</a>
+                    </div>
+                </div>
+
+                <!-- AlphaGomoku -->
+                <div class="project-card">
+                    <div class="project-number">05</div>
+                    <h3 class="project-title">AlphaGomoku</h3>
+                    <div class="project-tags">
+                        <span class="tag">深度学习</span>
+                        <span class="tag">策略网络</span>
+                        <span class="tag">价值网络</span>
+                    </div>
+                    <p class="project-description">
+                        基于深度学习的五子棋AI。采用策略网络和价值网络的双网络架构，通过自我博弈进行训练。项目经历了多个版本迭代，从基础的深度学习网络探索到结合AlphaGo风格，提供了快速上手版本和完整训练版本。
+                    </p>
+                    <div class="project-links">
+                        <a href="https://github.com/lybx-leyw/AlphaGomoku" class="project-link" target="_blank">GitHub →</a>
+                    </div>
+                </div>
+
+                <!-- Tetris -->
+                <div class="project-card">
+                    <div class="project-number">06</div>
+                    <h3 class="project-title">Tetris</h3>
+                    <div class="project-tags">
+                        <span class="tag">C语言</span>
+                        <span class="tag">游戏开发</span>
+                        <span class="tag">算法优化</span>
+                    </div>
+                    <p class="project-description">
+                        经典俄罗斯方块游戏的C语言实现。通过项目深入理解游戏开发的基础概念，包括图形渲染、事件处理、碰撞检测和游戏循环机制。项目展示了从零开始构建完整游戏系统所需的各项技能，是理解游戏编程和算法优化的良好实践。
+                    </p>
+                    <div class="project-links">
+                        <a href="https://github.com/lybx-leyw/Tetris" class="project-link" target="_blank">GitHub →</a>
+                    </div>
+                </div>
+
+                <!-- Big Integer Arithmetic -->
+                <div class="project-card">
+                    <div class="project-number">07</div>
+                    <h3 class="project-title">Big Integer Arithmetic</h3>
+                    <div class="project-tags">
+                        <span class="tag">C语言</span>
+                        <span class="tag">算法设计</span>
+                        <span class="tag">数据结构</span>
+                    </div>
+                    <p class="project-description">
+                        大整数运算库的C语言实现。支持大整数的加减乘除等基本运算，通过项目深入理解计算机底层的数据表示和算法实现细节。展示了如何突破基本数据类型的限制，处理任意任意精度的数值计算，是理解计算机算术和算法优化的重要实践。
+                    </p>
+                    <div class="project-links">
+                        <a href="https://github.com/lybx-leyw/big-integer-arithmetic" class="project-link" target="_blank">GitHub →</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section id="blog" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">深度学习Blog</h2>
+            <div class="blog-content">
+
+                <!-- Blog Post 1 -->
+                <article class="blog-post">
+                    <div class="blog-header">
+                        <span class="blog-date">2026-03-08</span>
+                        <span class="blog-category">机器学习理论</span>
+                    </div>
+                    <h3 class="blog-title">轴平行矩阵的PAC可学习性证明与实践</h3>
+                    <div class="blog-excerpt">
+                        本文探讨了轴平行矩阵问题的PAC可学习性，通过理论分析和实验验证，证明了在合理的样本复杂度下，能够以高概率学习到准确的概念。
+                    </div>
+                    <div class="blog-tags">
+                        <span class="blog-tag">PAC学习</span>
+                        <span class="blog-tag">轴平行矩阵</span>
+                        <span class="blog-tag">算法分析</span>
+                    </div>
+                    <a href="blog/pac-learning.html" class="blog-link">阅读全文 →</a>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Vision Section -->
+    <section id="vision" class="section">
+        <div class="container">
+            <h2 class="section-title">研究愿景</h2>
+            <div class="vision-content">
+                <div class="vision-block">
+                    <div class="vision-icon">🔬</div>
+                    <h3 class="vision-title">深入探索模型架构优化</h3>
+                    <p class="vision-description">
+                        专注于神经网络架构的设计与优化，探索更高效、更强大的模型结构。从混合专家模型到通用Transformer，从门控机制到注意力优化，通过实验验证不同架构的性能表现与适用场景。
+                    </p>
+                </div>
+                <div class="vision-block">
+                    <div class="vision-icon">🧠</div>
+                    <h3 class="vision-title">关注心理学的启发</h3>
+                    <p class="vision-description">
+                        探索心理学理论对AI发展的启发意义，例如注意力机制对视觉注意的模拟、强化学习对试错学习的借鉴、证据累积理论对决策过程的建模。通过理解人类智能的本质，为AI算法设计提供新的思路。
+                    </p>
+                </div>
+                <div class="vision-block">
+                    <div class="vision-icon">⚡</div>
+                    <h3 class="vision-title">提升训练效率与性能</h3>
+                    <p class="vision-description">
+                        研究参数高效微调、训练策略优化等关键技术，探索如何在有限的计算资源下实现更好的模型性能。通过系统的对比实验，深入理解不同训练方法的效果与适用性。
+                    </p>
+                </div>
+                <div class="vision-block">
+                    <div class="vision-icon">🎯</div>
+                    <h3 class="vision-title">推动人工智能技术落地</h3>
+                    <p class="vision-description">
+                        致力于将前沿的人工智能技术应用于实际问题，探索AI在游戏、决策、自然语言处理等领域的应用潜力。通过实践项目积累经验，为AI技术的产业化应用贡献力量。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">联系我</h2>
+            <div class="contact-content">
+                <p class="contact-text">
+                    如果您对我的项目或研究感兴趣，或者希望探讨人工智能与心理学的相关话题，欢迎与我联系交流。
+                </p>
+                <div class="contact-links">
+                    <a href="https://github.com/lybx-leyw" class="contact-link" target="_blank">
+                        <span class="contact-icon">GitHub</span>
+                    </a>
+                    <a href="mailto:3250101924@zju.edu.cn" class="contact-link">
+                        <span class="contact-icon">Email</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 浙江大学 人工智能专业 绿意不息. All rights reserved.</p>
+            <p class="footer-note">探索人工智能技术与心理学的启发</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
