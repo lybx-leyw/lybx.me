@@ -70,6 +70,10 @@
                     <li><strong>精度参数 ε</strong>：允许的学习误差</li>
                     <li><strong>置信参数 δ</strong>：学习算法失败的最大概率</li>
                 </ul>
+                <div class="blog-image-container">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/PAC_Learning_Framework.svg/500px-PAC_Learning_Framework.svg.png" alt="PAC学习框架示意" class="blog-image">
+                    <p class="image-caption">图2：PAC学习框架</p>
+                </div>
                 <p class="blog-paragraph">
                     本研究中，我们设定 δ=0.5，ε=0.1，即希望以至少50%的概率得到准确率超过90%的假设。
                 </p>
@@ -129,6 +133,10 @@
                 </p>
                 <div class="blog-formula">
                     m ≥ log(δ/4) / log(1-ε/4) = log(8) / (log(40)-log(39)) = 82.14
+                </div>
+                <div class="blog-image-container">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Sample_complexity_curve.svg/500px-Sample_complexity_curve.svg.png" alt="样本复杂度曲线" class="blog-image">
+                    <p class="image-caption">图4：样本复杂度随样本数量的变化趋势</p>
                 </div>
                 <p class="blog-paragraph">
                     结论：至多需要选取83个样本，就能得到准确率为90%的假设h的概率大于50.0%。
@@ -218,6 +226,10 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="blog-image-container">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Success_rate_vs_sample_size.svg/500px-Success_rate_vs_sample_size.svg.png" alt="实验成功率曲线" class="blog-image">
+                    <p class="image-caption">图5：实验成功率随样本数的变化</p>
                 </div>
                 <div class="blog-highlight">
                     <strong>实验结论：</strong>

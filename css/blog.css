@@ -220,13 +220,13 @@
     font-family: 'Fira Code', 'Consolas', monospace;
     font-size: 0.9rem;
     line-height: 1.6;
-    color: #d4d4d4d;
+    color: #d4d4d4;
     white-space: pre-wrap;
     word-wrap: break-word;
 }
 
 .code-block code {
-    color: #d4d4d4d;
+    color: #d4d4d4;
 }
 
 /* Result Table */
@@ -276,6 +276,30 @@
 
 .result-table tbody tr.highlight-row td {
     border-bottom: 2px solid #4caf50;
+}
+
+/* Blog Image */
+.blog-image-container {
+    text-align: center;
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--bg-alt);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.blog-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.image-caption {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-light);
+    font-style: italic;
 }
 
 /* Responsive */
