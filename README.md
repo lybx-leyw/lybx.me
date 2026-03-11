@@ -185,7 +185,7 @@ php -S localhost:8000
 
 - **作者**：浙江大学学生 绿意不息
 - **GitHub**：https://github.com/lybx-leyw
-- **网站**：[https://lybx.me](https://lybx-leyw.github.io/lybx.me/)
+- **网站**：https://lybx-leyw.github.io/lybx.me
 
 ---
 
