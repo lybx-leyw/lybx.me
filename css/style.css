@@ -10,9 +10,9 @@
 
 :root {
     /* 论文风格配色方案 - 亮色模式 */
-    --primary-color: #2c3e50;
-    --secondary-color: #34495e;
-    --accent-color: #5d6d7e;
+    --primary-color: #4CAF50;  /* 绿色主色 */
+    --secondary-color: #45a049;
+    --accent-color: #66BB6A;
     --text-color: #333333;
     --text-light: #666666;
     --text-lighter: #999999;
@@ -26,18 +26,18 @@
     --font-sans: 'Noto Sans SC', 'SimHei', sans-serif;
 }
 
-/* 暗黑模式配色 - 论文风格 */
+/* 暗黑模式配色 - 绿意不息风格 */
 .dark-mode {
-    --primary-color: #d4a574;
-    --secondary-color: #c9956c;
-    --accent-color: #e8b88a;
-    --text-color: #e8e8e8;
-    --text-light: #b8b8b8;
-    --text-lighter: #888888;
-    --bg-color: #1e1e1e;
-    --bg-alt: #252525;
-    --border-color: #3a3a3a;
-    --border-light: #404040;
+    --primary-color: #66BB6A;  /* 明亮的绿色 */
+    --secondary-color: #4CAF50;
+    --accent-color: #81C784;
+    --text-color: #f5f5f5;  /* 更亮的文字 */
+    --text-light: #c8c8c8;
+    --text-lighter: #a0a0a0;
+    --bg-color: #1a1a1a;
+    --bg-alt: #242424;
+    --border-color: #3d3d3d;
+    --border-light: #4a4a4a;
 }
 
 html {
@@ -331,17 +331,40 @@ body {
 }
 
 .about-text {
-    background-color: #ffffff;
+    background-color: var(--bg-color);
     padding: 3rem;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+/* 暗黑模式下关于我文字更亮 */
+.dark-mode .about-text {
+    background: linear-gradient(135deg, var(--bg-alt) 0%, var(--bg-color) 100%);
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.1);
+}
+
+.dark-mode .paragraph {
+    color: var(--text-color);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .section-title {
+    color: var(--primary-color);
+    text-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.dark-mode .section-title::after {
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    box-shadow: 0 0 8px var(--primary-color);
+}
+
 .paragraph {
     margin-bottom: 1.5rem;
     text-align: justify;
     text-indent: 2em;
+    color: var(--text-color);
 }
 
 .paragraph:last-child {
@@ -383,8 +406,19 @@ body {
 
 .project-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    border-color: var(--accent-color);
+    box-shadow: 0 8px 16px rgba(76, 175, 80, 0.2);
+    border-color: var(--primary-color);
+}
+
+/* 暗黑模式下项目卡片 */
+.dark-mode .project-card {
+    background: linear-gradient(135deg, var(--bg-alt) 0%, var(--bg-color) 100%);
+    border: 2px solid var(--border-color);
+}
+
+.dark-mode .project-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3);
 }
 
 .project-card:hover::before {
@@ -402,12 +436,21 @@ body {
     line-height: 1;
 }
 
+.dark-mode .project-number {
+    color: var(--primary-color);
+    opacity: 0.3;
+}
+
 .project-title {
     font-family: var(--font-serif);
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--primary-color);
     margin-bottom: 1rem;
+}
+
+.dark-mode .project-title {
+    text-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
 }
 
 .project-tags {
@@ -426,6 +469,12 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 4px;
     font-weight: 500;
+}
+
+.dark-mode .tag {
+    background-color: var(--bg-color);
+    border-color: var(--primary-color);
+    color: var(--text-color);
 }
 
 .project-description {
@@ -509,7 +558,7 @@ body {
 }
 
 .vision-block {
-    background-color: #ffffff;
+    background-color: var(--bg-color);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 2.5rem;
@@ -519,12 +568,25 @@ body {
 
 .vision-block:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 16px rgba(76, 175, 80, 0.2);
+    border-color: var(--primary-color);
+}
+
+/* 暗黑模式下愿景块更突出 */
+.dark-mode .vision-block {
+    background: linear-gradient(135deg, var(--bg-alt) 0%, var(--bg-color) 100%);
+    border: 2px solid var(--border-color);
+}
+
+.dark-mode .vision-block:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3);
 }
 
 .vision-icon {
     font-size: 4rem;
     margin-bottom: 1.5rem;
+    filter: drop-shadow(0 2px 4px rgba(76, 175, 80, 0.3));
 }
 
 .vision-title {
@@ -535,10 +597,19 @@ body {
     margin-bottom: 1rem;
 }
 
+.dark-mode .vision-title {
+    color: var(--primary-color);
+    text-shadow: 0 2px 4px rgba(76, 175, 80, 0.4);
+}
+
 .vision-description {
     color: var(--text-light);
     line-height: 1.8;
     text-align: justify;
+}
+
+.dark-mode .vision-description {
+    color: var(--text-color);
 }
 
 /* ============================================
@@ -650,6 +721,11 @@ body {
     line-height: 1.8;
 }
 
+/* 暗黑模式下联系文字更亮 */
+.dark-mode .contact-text {
+    color: var(--text-color);
+}
+
 .contact-links {
     display: flex;
     justify-content: center;
@@ -661,8 +737,8 @@ body {
     align-items: center;
     justify-content: center;
     padding: 1rem 2rem;
-    background-color: #ffffff;
-    border: 2px solid var(--border-color);
+    background-color: var(--bg-color);
+    border: 2px solid var(--primary-color);
     border-radius: 8px;
     color: var(--primary-color);
     text-decoration: none;
@@ -676,7 +752,16 @@ body {
     background-color: var(--primary-color);
     color: #ffffff;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+/* 暗黑模式下联系链接增强 */
+.dark-mode .contact-link {
+    border-width: 3px;
+}
+
+.dark-mode .contact-link:hover {
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.5);
 }
 
 .contact-icon {
