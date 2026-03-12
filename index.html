@@ -17,12 +17,21 @@
             <ul class="nav-menu">
                 <li><a href="#about">关于我</a></li>
                 <li><a href="#projects">项目展示</a></li>
-                <li><a href="categories/blog.html">深度学习Blog</a></li>
-                <li><a href="categories/learning-journey.html">求学路上</a></li>
-                <li><a href="categories/wild-ideas.html">异想天开</a></li>
+                <li class="nav-dropdown">
+                    <a href="#">知识探索</a>
+                    <div class="nav-dropdown-content">
+                        <a href="categories/blog.html">深度学习Blog</a>
+                        <a href="categories/learning-journey.html">求学路上</a>
+                        <a href="categories/wild-ideas.html">异想天开</a>
+                    </div>
+                </li>
                 <li><a href="#vision">研究愿景</a></li>
                 <li><a href="#contact">联系我</a></li>
             </ul>
+            <button class="dark-mode-toggle" id="darkModeToggle" title="切换深度模式">
+                <span class="icon">🌙</span>
+                <span class="text">深度模式</span>
+            </button>
         </nav>
     </header>
 

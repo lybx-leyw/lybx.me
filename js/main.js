@@ -3,6 +3,34 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
+    // 暗黑模式切换
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+    const toggleIcon = darkModeToggle.querySelector('.icon');
+    const toggleText = darkModeToggle.querySelector('.text');
+
+    // 检查本地存储中的暗黑模式设置
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode === 'true') {
+        body.classList.add('dark-mode');
+        toggleIcon.textContent = '☀️';
+        toggleText.textContent = '明亮模式';
+    }
+
+    darkModeToggle.addEventListener('click', function() {
+        body.classList.toggle('dark-mode');
+
+        if (body.classList.contains('dark-mode')) {
+            toggleIcon.textContent = '☀️';
+            toggleText.textContent = '明亮模式';
+            localStorage.setItem('darkMode', 'true');
+        } else {
+            toggleIcon.textContent = '🌙';
+            toggleText.textContent = '深度模式';
+            localStorage.setItem('darkMode', 'false');
+        }
+    });
+
     // 平滑滚动到锚点
     const navLinks = document.querySelectorAll('.nav-menu a');
 

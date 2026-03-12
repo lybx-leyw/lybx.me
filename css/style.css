@@ -9,7 +9,7 @@
 }
 
 :root {
-    /* 论文风格配色方案 */
+    /* 论文风格配色方案 - 亮色模式 */
     --primary-color: #2c3e50;
     --secondary-color: #34495e;
     --accent-color: #5d6d7e;
@@ -24,6 +24,20 @@
     /* 字体配置 */
     --font-serif: 'Noto Serif SC', 'SimSun', serif;
     --font-sans: 'Noto Sans SC', 'SimHei', sans-serif;
+}
+
+/* 暗黑模式配色 */
+body.dark-mode {
+    --primary-color: #3498db;
+    --secondary-color: #2980b9;
+    --accent-color: #5dade2;
+    --text-color: #ecf0f1;
+    --text-light: #bdc3c7;
+    --text-lighter: #95a5a6;
+    --bg-color: #1a1a2e;
+    --bg-alt: #16213e;
+    --border-color: #2c3e50;
+    --border-light: #34495e;
 }
 
 html {
@@ -60,6 +74,33 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+}
+
+/* 暗黑模式切换按钮 */
+.dark-mode-toggle {
+    background: none;
+    border: 2px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dark-mode-toggle:hover {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border-color: var(--primary-color);
+}
+
+.dark-mode-toggle .icon {
+    font-size: 1.2rem;
 }
 
 .nav-brand {
@@ -78,27 +119,77 @@ body {
 
 .nav-menu a {
     text-decoration: none;
-    color: var(--text-light);
+    color: var(--text-color);
     font-size: 0.95rem;
     font-weight: 500;
-    transition: color 0.3s ease;
-    position: relative;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    background-color: var(--bg-color);
 }
 
-.nav-menu a::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;
-    height: 2px;
+.nav-menu a:hover,
+.nav-menu a.active {
     background-color: var(--primary-color);
-    transition: width 0.3s ease;
+    color: #ffffff;
+    border-color: var(--primary-color);
 }
 
-.nav-menu a:hover {
-    color: var(--primary-color);
+/* 下拉菜单样式 */
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
 }
+
+.nav-dropdown > a {
+    cursor: pointer;
+}
+
+.nav-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--bg-color);
+    min-width: 180px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-top: 4px;
+    padding: 0.5rem 0;
+    z-index: 1001;
+}
+
+.nav-dropdown:hover .nav-dropdown-content {
+    display: block;
+}
+
+.nav-dropdown-content a {
+    display: block;
+    padding: 0.6rem 1rem;
+    text-decoration: none;
+    color: var(--text-color);
+    background: none;
+    border: none;
+    border-radius: 0;
+    transition: background-color 0.2s ease;
+}
+
+.nav-dropdown-content a:hover {
+    background-color: var(--bg-alt);
+    color: var(--primary-color);
+    transform: none;
+    box-shadow: none;
+}
+
+/* 下拉指示箭头 */
+.nav-dropdown > a::after {
+    content: ' ▾';
+    font-size: 0.7em;
+}
+
+
 
 .nav-menu a:hover::after {
     width: 100%;
