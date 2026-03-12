@@ -3,33 +3,63 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 暗黑模式切换
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    const body = document.body;
-    const toggleIcon = darkModeToggle.querySelector('.icon');
-    const toggleText = darkModeToggle.querySelector('.text');
-
-    // 检查本地存储中的暗黑模式设置
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode === 'true') {
-        body.classList.add('dark-mode');
-        toggleIcon.textContent = '☀️';
-        toggleText.textContent = '明亮模式';
+    // 初始化暗黑模式 - 从localStorage读取
+    function initDarkMode() {
+        const savedDarkMode = localStorage.getItem('darkMode');
+        if (savedDarkMode === 'true') {
+            document.documentElement.classList.add('dark-mode');
+            updateDarkModeButton(true);
+        } else if (savedDarkMode === 'false') {
+            updateDarkModeButton(false);
+        }
     }
 
-    darkModeToggle.addEventListener('click', function() {
-        body.classList.toggle('dark-mode');
-
-        if (body.classList.contains('dark-mode')) {
-            toggleIcon.textContent = '☀️';
-            toggleText.textContent = '明亮模式';
-            localStorage.setItem('darkMode', 'true');
-        } else {
-            toggleIcon.textContent = '🌙';
-            toggleText.textContent = '深度模式';
-            localStorage.setItem('darkMode', 'false');
+    // 更新暗黑模式按钮状态
+    function updateDarkModeButton(isDark) {
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            const toggleIcon = darkModeToggle.querySelector('.icon');
+            const toggleText = darkModeToggle.querySelector('.text');
+            if (isDark) {
+                toggleIcon.textContent = '☀️';
+                toggleText.textContent = '明亮模式';
+            } else {
+                toggleIcon.textContent = '🌙';
+                toggleText.textContent = '深度模式';
+            }
         }
-    });
+    }
+
+    // 切换暗黑模式
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', function() {
+            const isDark = document.documentElement.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            updateDarkModeButton(isDark);
+        });
+    }
+
+    // 初始化
+    initDarkMode();
+
+    // 下拉菜单点击切换
+    const navDropdown = document.querySelector('.nav-dropdown');
+    const dropdownButton = navDropdown ? navDropdown.querySelector('a') : null;
+
+    if (dropdownButton) {
+        dropdownButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            navDropdown.classList.toggle('active');
+        });
+
+        // 点击其他地方关闭下拉菜单
+        document.addEventListener('click', function(e) {
+            if (!navDropdown.contains(e.target)) {
+                navDropdown.classList.remove('active');
+            }
+        });
+    }
 
     // 平滑滚动到锚点
     const navLinks = document.querySelectorAll('.nav-menu a');

@@ -26,18 +26,18 @@
     --font-sans: 'Noto Sans SC', 'SimHei', sans-serif;
 }
 
-/* 暗黑模式配色 */
-body.dark-mode {
-    --primary-color: #3498db;
-    --secondary-color: #2980b9;
-    --accent-color: #5dade2;
-    --text-color: #ecf0f1;
-    --text-light: #bdc3c7;
-    --text-lighter: #95a5a6;
-    --bg-color: #1a1a2e;
-    --bg-alt: #16213e;
-    --border-color: #2c3e50;
-    --border-light: #34495e;
+/* 暗黑模式配色 - 论文风格 */
+.dark-mode {
+    --primary-color: #d4a574;
+    --secondary-color: #c9956c;
+    --accent-color: #e8b88a;
+    --text-color: #e8e8e8;
+    --text-light: #b8b8b8;
+    --text-lighter: #888888;
+    --bg-color: #1e1e1e;
+    --bg-alt: #252525;
+    --border-color: #3a3a3a;
+    --border-light: #404040;
 }
 
 html {
@@ -153,40 +153,53 @@ body {
     left: 0;
     background-color: var(--bg-color);
     min-width: 180px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     border: 1px solid var(--border-color);
     border-radius: 4px;
     margin-top: 4px;
-    padding: 0.5rem 0;
+    padding: 0;
     z-index: 1001;
 }
 
-.nav-dropdown:hover .nav-dropdown-content {
+/* 点击显示下拉菜单 */
+.nav-dropdown.active .nav-dropdown-content {
     display: block;
 }
 
 .nav-dropdown-content a {
     display: block;
-    padding: 0.6rem 1rem;
+    padding: 0.8rem 1rem;
     text-decoration: none;
     color: var(--text-color);
     background: none;
     border: none;
     border-radius: 0;
     transition: background-color 0.2s ease;
+    text-align: left;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border-light);
 }
 
-.nav-dropdown-content a:hover {
+.nav-dropdown-content a:last-child {
+    border-bottom: none;
+}
+
+.nav-dropdown-content a:hover,
+.nav-dropdown-content a.active {
     background-color: var(--bg-alt);
     color: var(--primary-color);
-    transform: none;
-    box-shadow: none;
 }
 
 /* 下拉指示箭头 */
 .nav-dropdown > a::after {
     content: ' ▾';
     font-size: 0.7em;
+    margin-left: 4px;
+    transition: transform 0.3s ease;
+}
+
+.nav-dropdown.active > a::after {
+    transform: rotate(180deg);
 }
 
 

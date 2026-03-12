@@ -240,7 +240,7 @@
 .result-table table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
+    background: var(--bg-color);
 }
 
 .result-table thead {
@@ -333,4 +333,139 @@
     .result-table td {
         padding: 0.625rem 0.75rem;
     }
+}
+
+/* 暗黑模式适配 */
+.dark-mode .blog-article {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+}
+
+.dark-mode .blog-title {
+    color: var(--text-color);
+}
+
+.dark-mode .blog-section h2 {
+    color: var(--text-color);
+}
+
+.dark-mode .blog-section h3 {
+    color: var(--text-light);
+}
+
+.dark-mode .blog-section h4 {
+    color: var(--text-light);
+}
+
+.dark-mode .blog-paragraph {
+    color: var(--text-color);
+}
+
+.dark-mode .blog-toc {
+    background: var(--bg-alt);
+    border: 1px solid var(--border-color);
+}
+
+.dark-mode .blog-toc h3 {
+    color: var(--text-color);
+}
+
+.dark-mode .blog-toc a {
+    color: var(--text-light);
+}
+
+.dark-mode .blog-toc a:hover {
+    color: var(--primary-color);
+}
+
+.dark-mode .blog-post {
+    background: var(--bg-alt);
+    border: 1px solid var(--border-color);
+}
+
+.dark-mode .blog-post:hover {
+    background: var(--bg-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .blog-header {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dark-mode .blog-excerpt {
+    color: var(--text-light);
+}
+
+.dark-mode .blog-tag {
+    background: var(--bg-color);
+    color: var(--text-light);
+    border: 1px solid var(--border-color);
+}
+
+.dark-mode .blog-tag:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.dark-mode .blog-case {
+    background: var(--bg-alt);
+    border-left: 4px solid var(--primary-color);
+}
+
+.dark-mode .blog-formula {
+    background: var(--bg-alt);
+    border: 1px solid var(--border-color);
+}
+
+.dark-mode .blog-image-container {
+    background: var(--bg-alt);
+    border: 1px solid var(--border-color);
+}
+
+.dark-mode .result-table tbody tr.highlight-row {
+    background: #2d4a2d;
+    border-bottom: 2px solid #4caf50;
+}
+
+.dark-mode .result-table tbody tr.highlight-row td {
+    border-bottom: 2px solid #4caf50;
+}
+
+/* ml-theories.html 特殊样式暗黑模式适配 */
+.dark-mode .concept-def {
+    background: #2a2a2a;
+    border-left: 4px solid var(--primary-color);
+}
+
+.dark-mode .concept-def strong {
+    color: var(--text-color);
+}
+
+.dark-mode .section-subhead {
+    color: var(--text-color);
+}
+
+.dark-mode .interplay-note {
+    background: #2a2a2a;
+    border: 1px solid var(--border-color);
+}
+
+.dark-mode .philosophy-box {
+    background: #2a2a2a;
+    border-left: 6px solid var(--primary-color);
+}
+
+.dark-mode .philosophy-box h4 {
+    color: var(--primary-color);
+}
+
+.dark-mode .quote {
+    background: var(--bg-alt);
+    border-left: 3px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.dark-mode .insight-tag {
+    background: var(--secondary-color);
 }
