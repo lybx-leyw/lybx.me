@@ -1,0 +1,338 @@
+/* ============================================
+   Terminal System Styles
+   ============================================ */
+
+.terminal-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    border: 2px solid var(--primary-color);
+    cursor: pointer;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    transition: all 0.3s ease;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.terminal-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+}
+
+.terminal-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.terminal-modal.active {
+    display: flex;
+}
+
+.terminal-container {
+    width: 90%;
+    max-width: 700px;
+    height: 80vh;
+    background-color: #0a0a0a;
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(76, 175, 80, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.terminal-header {
+    background-color: #1a1a1a;
+    border-bottom: 1px solid var(--primary-color);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.terminal-title {
+    color: var(--primary-color);
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.terminal-title::before {
+    content: '>';
+    color: var(--primary-color);
+}
+
+.terminal-close {
+    background: none;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.terminal-close:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.terminal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.terminal-output {
+    margin-bottom: 20px;
+    color: #4CAF50;
+    line-height: 1.8;
+}
+
+.terminal-output .prompt {
+    color: var(--primary-color);
+    margin-right: 10px;
+}
+
+.terminal-output .command {
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.terminal-output .result {
+    color: #c8c8c8;
+    margin-left: 20px;
+    margin-bottom: 5px;
+}
+
+.terminal-output .success {
+    color: var(--primary-color);
+}
+
+.terminal-output .error {
+    color: #f44336;
+}
+
+.terminal-output .info {
+    color: #2196F3;
+}
+
+.terminal-output .warning {
+    color: #FF9800;
+}
+
+.terminal-input-container {
+    background-color: #1a1a1a;
+    border-top: 1px solid var(--primary-color);
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.terminal-prompt {
+    color: var(--primary-color);
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    outline: none;
+}
+
+.terminal-input::placeholder {
+    color: #666;
+}
+
+/* Terminal scroll bar */
+.terminal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.terminal-body::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.terminal-body::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+/* Terminal commands help */
+.terminal-help {
+    color: #c8c8c8;
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+}
+
+.terminal-help-title {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.terminal-help-item {
+    margin-bottom: 5px;
+    display: flex;
+    gap: 10px;
+}
+
+.terminal-help-command {
+    color: #4CAF50;
+    font-weight: 600;
+    min-width: 150px;
+}
+
+/* Terminal likes display */
+.terminal-likes-list {
+    margin-top: 15px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.terminal-likes-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border-bottom: 1px solid #1a1a1a;
+    color: #c8c8c8;
+}
+
+.terminal-likes-item:last-child {
+    border-bottom: none;
+}
+
+.terminal-likes-name {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.terminal-likes-count {
+    color: #4CAF50;
+}
+
+/* Terminal comments display */
+.terminal-comments-list {
+    margin-top: 15px;
+}
+
+.terminal-comment-item {
+    background-color: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.terminal-comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    color: #4CAF50;
+    font-size: 12px;
+}
+
+.terminal-comment-author {
+    font-weight: 600;
+}
+
+.terminal-comment-time {
+    color: #666;
+}
+
+.terminal-comment-text {
+    color: #c8c8c8;
+    line-height: 1.6;
+}
+
+/* Project like buttons in cards */
+.project-like-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.project-like-button:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.project-like-button.liked {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.project-like-count {
+    font-weight: 600;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.terminal-output {
+    animation: slideIn 0.3s ease;
+}
