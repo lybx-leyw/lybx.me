@@ -342,7 +342,7 @@ class SimpleInteraction {
     // 绑定事件
     bindEvents() {
         const modal = this.modal;
-        const self = this;
+        console.log('bindEvents 被调用，modal:', modal);
 
         // ESC关闭模态框
         document.addEventListener('keydown', (e) => {
@@ -353,14 +353,24 @@ class SimpleInteraction {
 
         // 登录按钮
         const loginBtn = modal.querySelector('.btn-login');
+        console.log('登录按钮:', loginBtn);
         if (loginBtn) {
-            loginBtn.addEventListener('click', () => this.handleLogin());
+            loginBtn.addEventListener('click', (e) => {
+                console.log('登录按钮被点击');
+                e.preventDefault();
+                this.handleLogin();
+            });
         }
 
         // 注册按钮
         const registerBtn = modal.querySelector('.btn-register');
+        console.log('注册按钮:', registerBtn);
         if (registerBtn) {
-            registerBtn.addEventListener('click', () => this.handleRegister());
+            registerBtn.addEventListener('click', (e) => {
+                console.log('注册按钮被点击');
+                e.preventDefault();
+                this.handleRegister();
+            });
         }
 
         // 退出登录按钮
