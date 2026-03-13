@@ -1,19 +1,20 @@
 /* ============================================
-   Terminal System Styles
+   Simple Interaction System Styles
    ============================================ */
 
-.terminal-button {
+/* 交互按钮 */
+.interaction-button {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background-color: var(--primary-color);
     color: white;
-    border: 2px solid var(--primary-color);
+    border: none;
     cursor: pointer;
-    font-size: 24px;
+    font-size: 28px;
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
     transition: all 0.3s ease;
     z-index: 9999;
@@ -22,18 +23,19 @@
     justify-content: center;
 }
 
-.terminal-button:hover {
+.interaction-button:hover {
     transform: scale(1.1);
     box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
 }
 
-.terminal-modal {
+/* 交互模态框 */
+.interaction-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.6);
     z-index: 10000;
     display: none;
     align-items: center;
@@ -41,248 +43,406 @@
     animation: fadeIn 0.3s ease;
 }
 
-.terminal-modal.active {
+.interaction-modal.active {
     display: flex;
 }
 
-.terminal-container {
+.interaction-container {
     width: 90%;
-    max-width: 700px;
-    height: 80vh;
-    background-color: #0a0a0a;
-    border: 2px solid var(--primary-color);
-    border-radius: 8px;
-    box-shadow: 0 8px 32px rgba(76, 175, 80, 0.3);
+    max-width: 600px;
+    max-height: 80vh;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
-.terminal-header {
+.dark-mode .interaction-container {
     background-color: #1a1a1a;
-    border-bottom: 1px solid var(--primary-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* 交互头部 */
+.interaction-header {
+    background-color: var(--primary-color);
     padding: 15px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    color: white;
 }
 
-.terminal-title {
-    color: var(--primary-color);
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
+.interaction-title {
+    font-size: 18px;
     font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
 }
 
-.terminal-title::before {
-    content: '>';
-    color: var(--primary-color);
-}
-
-.terminal-close {
-    background: none;
-    border: 1px solid var(--primary-color);
-    color: var(--primary-color);
-    width: 30px;
-    height: 30px;
+.interaction-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
 }
 
-.terminal-close:hover {
+.interaction-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* 交互主体 */
+.interaction-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* 交互区域 */
+.interaction-section {
+    margin-bottom: 25px;
+}
+
+.section-heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+/* 用户输入 */
+.user-input-wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+.user-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.dark-mode .user-input {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #f5f5f5;
+}
+
+.user-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.btn-save-user {
+    padding: 12px 24px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-save-user:hover {
+    background-color: var(--secondary-color);
+}
+
+/* 项目列表 */
+.projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.project-item {
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.dark-mode .project-item {
+    background-color: #2a2a2a;
+}
+
+.project-item:hover {
+    background-color: #e8e8e8;
+}
+
+.dark-mode .project-item:hover {
+    background-color: #333;
+}
+
+.project-info {
+    flex: 1;
+}
+
+.project-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 8px;
+}
+
+.project-stats {
+    display: flex;
+    gap: 15px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    color: #666;
+}
+
+.dark-mode .stat {
+    color: #999;
+}
+
+.stat-icon {
+    font-size: 16px;
+}
+
+.stat-count {
+    font-weight: 600;
+}
+
+.project-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-like, .btn-comment {
+    padding: 8px 16px;
+    border: 2px solid var(--primary-color);
+    border-radius: 6px;
+    background-color: transparent;
+    color: var(--primary-color);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-like:hover, .btn-comment:hover {
     background-color: var(--primary-color);
     color: white;
 }
 
-.terminal-body {
+.btn-like.liked {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* 评论对话框 */
+.comment-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.comment-dialog-content {
+    width: 90%;
+    max-width: 550px;
+    max-height: 80vh;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.dark-mode .comment-dialog-content {
+    background-color: #1a1a1a;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.comment-dialog-header {
+    background-color: var(--primary-color);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.comment-dialog-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.comment-dialog-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.comment-dialog-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.comments-list {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
-    font-family: 'Courier New', monospace;
+}
+
+.no-comments {
+    text-align: center;
+    color: #999;
+    padding: 40px 20px;
+    font-style: italic;
+}
+
+.comment-item {
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 12px;
+}
+
+.dark-mode .comment-item {
+    background-color: #2a2a2a;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.comment-time {
+    color: #999;
+}
+
+.comment-text {
+    color: var(--text-color);
+    line-height: 1.6;
     font-size: 14px;
 }
 
-.terminal-output {
-    margin-bottom: 20px;
-    color: #4CAF50;
-    line-height: 1.8;
-}
-
-.terminal-output .prompt {
-    color: var(--primary-color);
-    margin-right: 10px;
-}
-
-.terminal-output .command {
-    color: #ffffff;
-    margin-bottom: 10px;
-}
-
-.terminal-output .result {
-    color: #c8c8c8;
-    margin-left: 20px;
-    margin-bottom: 5px;
-}
-
-.terminal-output .success {
-    color: var(--primary-color);
-}
-
-.terminal-output .error {
-    color: #f44336;
-}
-
-.terminal-output .info {
-    color: #2196F3;
-}
-
-.terminal-output .warning {
-    color: #FF9800;
-}
-
-.terminal-input-container {
-    background-color: #1a1a1a;
-    border-top: 1px solid var(--primary-color);
+.comment-input-wrapper {
     padding: 15px 20px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #e0e0e0;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 10px;
 }
 
-.terminal-prompt {
-    color: var(--primary-color);
-    font-family: 'Courier New', monospace;
-    font-size: 14px;
-    white-space: nowrap;
+.dark-mode .comment-input-wrapper {
+    background-color: #2a2a2a;
+    border-top-color: #444;
 }
 
-.terminal-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: #ffffff;
-    font-family: 'Courier New', monospace;
+.comment-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
     font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    background-color: #ffffff;
+    color: var(--text-color);
+    transition: border-color 0.3s ease;
+}
+
+.dark-mode .comment-input {
+    background-color: #1a1a1a;
+    border-color: #444;
+    color: #f5f5f5;
+}
+
+.comment-input:focus {
     outline: none;
+    border-color: var(--primary-color);
 }
 
-.terminal-input::placeholder {
-    color: #666;
+.btn-submit-comment {
+    align-self: flex-end;
+    padding: 10px 24px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
 }
 
-/* Terminal scroll bar */
-.terminal-body::-webkit-scrollbar {
+.btn-submit-comment:hover {
+    background-color: var(--secondary-color);
+}
+
+/* 滚动条样式 */
+.interaction-body::-webkit-scrollbar,
+.comments-list::-webkit-scrollbar {
     width: 8px;
 }
 
-.terminal-body::-webkit-scrollbar-track {
-    background: #1a1a1a;
+.interaction-body::-webkit-scrollbar-track,
+.comments-list::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-.terminal-body::-webkit-scrollbar-thumb {
+.interaction-body::-webkit-scrollbar-thumb,
+.comments-list::-webkit-scrollbar-thumb {
     background: var(--primary-color);
     border-radius: 4px;
 }
 
-/* Terminal commands help */
-.terminal-help {
-    color: #c8c8c8;
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid var(--primary-color);
-    border-radius: 4px;
+.interaction-body::-webkit-scrollbar-thumb:hover,
+.comments-list::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
 }
 
-.terminal-help-title {
-    color: var(--primary-color);
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.terminal-help-item {
-    margin-bottom: 5px;
-    display: flex;
-    gap: 10px;
-}
-
-.terminal-help-command {
-    color: #4CAF50;
-    font-weight: 600;
-    min-width: 150px;
-}
-
-/* Terminal likes display */
-.terminal-likes-list {
-    margin-top: 15px;
-    border: 1px solid var(--primary-color);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.terminal-likes-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 15px;
-    border-bottom: 1px solid #1a1a1a;
-    color: #c8c8c8;
-}
-
-.terminal-likes-item:last-child {
-    border-bottom: none;
-}
-
-.terminal-likes-name {
-    color: var(--primary-color);
-    font-weight: 600;
-}
-
-.terminal-likes-count {
-    color: #4CAF50;
-}
-
-/* Terminal comments display */
-.terminal-comments-list {
-    margin-top: 15px;
-}
-
-.terminal-comment-item {
-    background-color: #1a1a1a;
-    border: 1px solid #2a2a2a;
-    border-radius: 4px;
-    padding: 15px;
-    margin-bottom: 10px;
-}
-
-.terminal-comment-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    color: #4CAF50;
-    font-size: 12px;
-}
-
-.terminal-comment-author {
-    font-weight: 600;
-}
-
-.terminal-comment-time {
-    color: #666;
-}
-
-.terminal-comment-text {
-    color: #c8c8c8;
-    line-height: 1.6;
-}
-
-/* Project like buttons in cards */
+/* 项目卡片点赞按钮 */
 .project-like-button {
     display: inline-flex;
     align-items: center;
@@ -312,7 +472,27 @@
     font-weight: 600;
 }
 
-/* Animations */
+/* 通知样式 */
+.notification {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 10002;
+    font-size: 14px;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+/* 动画 */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -331,8 +511,4 @@
         transform: translateY(0);
         opacity: 1;
     }
-}
-
-.terminal-output {
-    animation: slideIn 0.3s ease;
 }
