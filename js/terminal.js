@@ -382,12 +382,8 @@ class SimpleInteraction {
             return;
         }
 
-        // 检查是否为作者专属昵称
-        if (username === '绿意不息') {
-            errorDiv.textContent = '此昵称为作者专属，请联系作者获取权限';
-            errorDiv.style.display = 'block';
-            return;
-        }
+        // 检查是否为作者专属昵称（仅限制普通用户注册，登录不受限制）
+        // "绿意不息" 可以通过作者ID验证来获得作者权限
 
         try {
             // 从 users 表查询用户
@@ -419,7 +415,11 @@ class SimpleInteraction {
             localStorage.setItem('lybx_user_id', data.user_id);
             localStorage.setItem('lybx_is_logged_in', 'true');
 
-            this.showNotification('登录成功！');
+            // 检查是否为作者（通过查询author_ids表）
+            await this.checkAuthorStatus();
+
+            const authorMsg = this.isAuthor ? '（作者身份已认证）' : '';
+            this.showNotification('登录成功！' + authorMsg);
             this.refreshModal();
             this.renderProjects();
             this.updateProjectLikeButtons();
@@ -606,6 +606,13 @@ class SimpleInteraction {
 
     // 切换点赞
     async toggleLike(projectName) {
+        // 检查是否登录
+        if (!this.isLoggedIn || !this.currentUser) {
+            this.showNotification('请先登录后再点赞！');
+            this.openModal();
+            return;
+        }
+
         if (!this.likes[projectName]) {
             this.likes[projectName] = { count: 0, users: [], userIds: [] };
         }
@@ -688,6 +695,14 @@ class SimpleInteraction {
 
         // 绑定提交按钮
         dialog.querySelector('.btn-submit-comment').addEventListener('click', async () => {
+            // 检查是否登录
+            if (!this.isLoggedIn || !this.currentUser) {
+                this.showNotification('请先登录后再评论！');
+                dialog.remove();
+                this.openModal();
+                return;
+            }
+            
             const input = dialog.querySelector('.comment-input');
             const text = input.value.trim();
             if (text) {
@@ -816,6 +831,53 @@ class SimpleInteraction {
         } catch (error) {
             console.error('保存用户名失败:', error);
             this.showNotification('保存失败，请稍后重试');
+        }
+    }
+
+    // 检查作者身份状态（登录时自动调用）
+    async checkAuthorStatus() {
+        // 检查本地是否已有作者ID
+        const savedAuthorId = localStorage.getItem('lybx_author_id');
+        if (savedAuthorId) {
+            // 验证本地存储的作者ID是否仍然有效
+            try {
+                const { data, error } = await this.supabase
+                    .from('author_ids')
+                    .select('*')
+                    .eq('author_id', savedAuthorId)
+                    .single();
+
+                if (data) {
+                    this.authorId = savedAuthorId;
+                    this.isAuthor = true;
+                    localStorage.setItem('lybx_is_author', 'true');
+                    this.updateAuthorStatus();
+                    return;
+                }
+            } catch (e) {
+                // 作者ID无效，清除
+            }
+        }
+
+        // 如果是"绿意不息"用户，自动检查
+        if (this.currentUser === '绿意不息') {
+            try {
+                const { data } = await this.supabase
+                    .from('author_ids')
+                    .select('*')
+                    .limit(1)
+                    .single();
+
+                if (data) {
+                    this.authorId = data.author_id;
+                    this.isAuthor = true;
+                    localStorage.setItem('lybx_author_id', data.author_id);
+                    localStorage.setItem('lybx_is_author', 'true');
+                    this.updateAuthorStatus();
+                }
+            } catch (e) {
+                console.log('自动检查作者状态失败');
+            }
         }
     }
 
@@ -996,6 +1058,13 @@ class SimpleInteraction {
             const submitBtn = interactionContainer.querySelector('.blog-btn-submit');
             const commentInput = interactionContainer.querySelector('.blog-comment-input');
             submitBtn.addEventListener('click', async () => {
+                // 检查是否登录
+                if (!this.isLoggedIn || !this.currentUser) {
+                    this.showNotification('请先登录后再评论！');
+                    this.openModal();
+                    return;
+                }
+                
                 const text = commentInput.value.trim();
                 if (text) {
                     commentInput.value = '';
@@ -1008,6 +1077,13 @@ class SimpleInteraction {
 
     // 切换博客点赞
     async toggleBlogLike(blogName, container) {
+        // 检查是否登录
+        if (!this.isLoggedIn || !this.currentUser) {
+            this.showNotification('请先登录后再点赞！');
+            this.openModal();
+            return;
+        }
+
         if (!this.likes[blogName]) {
             this.likes[blogName] = { count: 0, users: [], userIds: [] };
         }
