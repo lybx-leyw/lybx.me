@@ -387,13 +387,23 @@ class SimpleInteraction {
 
         try {
             // 从 users 表查询用户
+            console.log('尝试登录，用户名:', username);
+            
             const { data, error } = await this.supabase
                 .from('users')
                 .select('*')
                 .eq('username', username)
                 .single();
 
-            if (error || !data) {
+            console.log('查询结果:', { data, error });
+
+            if (error) {
+                errorDiv.textContent = '查询用户失败: ' + error.message;
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (!data) {
                 errorDiv.textContent = '用户不存在，请先注册';
                 errorDiv.style.display = 'block';
                 return;
