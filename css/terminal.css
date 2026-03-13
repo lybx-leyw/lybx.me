@@ -1165,3 +1165,29 @@
 .dark-mode .announcement-popup-body {
     color: #f5f5f5;
 }
+
+.announcement-popup-footer {
+    padding: 12px 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.dark-mode .announcement-popup-footer {
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.announcement-popup-footer label {
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    user-select: none;
+}
+
+.dark-mode .announcement-popup-footer label {
+    color: #aaa;
+}
+
+.announcement-popup-footer input[type="checkbox"] {
+    margin-right: 6px;
+    cursor: pointer;
+}

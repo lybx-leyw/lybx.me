@@ -141,21 +141,29 @@ class SimpleInteraction {
                 <div class="announcement-popup-body">
                     ${formattedContent}
                 </div>
+                <div class="announcement-popup-footer">
+                    <label><input type="checkbox" class="announcement-never-show"> 不再显示此公告</label>
+                </div>
             </div>
         `;
 
         document.body.appendChild(popup);
 
-        // 关闭按钮 - 使用公告ID存储
+        // 关闭按钮 - 只是关闭弹窗，不记录为不再显示
         popup.querySelector('.announcement-popup-close').addEventListener('click', () => {
             popup.remove();
-            // 记录已关闭的公告ID
-            localStorage.setItem('lybx_dismissed_announcement_id', announcementId);
         });
 
-        // 点击遮罩关闭
+        // 点击遮罩关闭 - 只是关闭弹窗
         popup.addEventListener('click', (e) => {
             if (e.target === popup) {
+                popup.remove();
+            }
+        });
+
+        // 不再显示此公告 - 勾选后关闭弹窗并记录
+        popup.querySelector('.announcement-never-show').addEventListener('change', (e) => {
+            if (e.target.checked) {
                 popup.remove();
                 localStorage.setItem('lybx_dismissed_announcement_id', announcementId);
             }
