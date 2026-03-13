@@ -63,21 +63,25 @@ class SimpleInteraction {
                 .from('announcements')
                 .select('*')
                 .order('created_at', { ascending: false })
-                .limit(1)
-                .single();
+                .limit(1);
 
+            // 处理错误或无数据的情况
             if (error) {
-                // 如果表不存在，尝试创建
-                if (error.code === '42P01') {
-                    await this.createAnnouncementsTable();
-                }
+                console.log('公告表查询错误:', error.message);
+                return;
+            }
+            
+            if (!data || data.length === 0) {
+                console.log('暂无公告');
                 return;
             }
 
-            if (data && data.content) {
-                this.announcement = data.content;
-                localStorage.setItem('lybx_announcement', data.content);
-                this.showAnnouncement(data.content);
+            const announcementData = data[0];
+            if (announcementData && announcementData.content) {
+                this.announcement = announcementData.content;
+                localStorage.setItem('lybx_announcement', announcementData.content);
+                this.showAnnouncement(announcementData.content);
+                console.log('公告已加载:', announcementData.content.substring(0, 50) + '...');
             }
         } catch (error) {
             console.error('加载公告失败:', error);
@@ -95,11 +99,14 @@ class SimpleInteraction {
 
     // 显示公告
     showAnnouncement(content) {
+        // 处理换行符
+        const formattedContent = this.nl2br(content);
+        
         // 先更新模态框内的公告显示
         const announcementSection = document.querySelector('.announcement-section');
         const announcementContent = document.querySelector('.announcement-content');
         if (announcementSection && announcementContent) {
-            announcementContent.textContent = content;
+            announcementContent.innerHTML = formattedContent;
             announcementSection.style.display = 'block';
         }
 
@@ -119,6 +126,10 @@ class SimpleInteraction {
 
         const popup = document.createElement('div');
         popup.className = 'announcement-popup';
+        // 先转义再处理换行符
+        const escapedContent = this.escapeHtml(content);
+        const formattedContent = escapedContent.replace(/\n/g, '<br>');
+        
         popup.innerHTML = `
             <div class="announcement-popup-content">
                 <div class="announcement-popup-header">
@@ -126,7 +137,7 @@ class SimpleInteraction {
                     <button class="announcement-popup-close">×</button>
                 </div>
                 <div class="announcement-popup-body">
-                    ${this.escapeHtml(content)}
+                    ${formattedContent}
                 </div>
             </div>
         `;
@@ -404,6 +415,12 @@ class SimpleInteraction {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // 将换行符转换为HTML
+    nl2br(text) {
+        if (!text) return '';
+        return text.replace(/\n/g, '<br>');
     }
 
     // 显示项目列表区域
