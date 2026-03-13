@@ -221,6 +221,7 @@ class SimpleInteraction {
                     this.comments[key] = [];
                 }
                 this.comments[key].push({
+                    id: comment.id,  // 保存评论的唯一ID
                     author: comment.username,
                     user_id: comment.user_id,
                     text: comment.content,
@@ -996,7 +997,7 @@ class SimpleInteraction {
     // 添加评论
     async addComment(projectName, text, callback) {
         try {
-            // 插入到 Supabase
+            // 插入到 Supabase 并获取返回的ID
             const { data, error } = await this.supabase
                 .from('comments')
                 .insert({
@@ -1005,7 +1006,9 @@ class SimpleInteraction {
                     username: this.currentUser,
                     user_id: this.userId,  // 使用唯一ID区分用户
                     content: text
-                });
+                })
+                .select()
+                .single();
 
             if (error) throw error;
 
@@ -1014,6 +1017,7 @@ class SimpleInteraction {
             }
 
             this.comments[projectName].push({
+                id: data.id,  // 保存评论的唯一ID
                 author: this.currentUser,
                 user_id: this.userId,
                 text: text,
@@ -1435,7 +1439,7 @@ class SimpleInteraction {
     // 添加博客评论
     async addBlogComment(blogName, text, callback) {
         try {
-            await this.supabase
+            const { data } = await this.supabase
                 .from('comments')
                 .insert({
                     target_type: 'blog',
@@ -1443,13 +1447,16 @@ class SimpleInteraction {
                     username: this.currentUser,
                     user_id: this.userId,
                     content: text
-                });
+                })
+                .select()
+                .single();
 
             if (!this.comments[blogName]) {
                 this.comments[blogName] = [];
             }
 
             this.comments[blogName].push({
+                id: data.id,  // 保存评论的唯一ID
                 author: this.currentUser,
                 user_id: this.userId,
                 text: text,
