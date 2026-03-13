@@ -16,6 +16,7 @@ class SimpleInteraction {
         this.createInteractionButton();
         this.createInteractionModal();
         this.addProjectLikeButtons();
+        this.addBlogInteractions();
         this.bindEvents();
     }
 
@@ -323,6 +324,171 @@ class SimpleInteraction {
                 this.toggleLike(projectName);
             });
         });
+    }
+
+    // 添加博客文章互动功能
+    addBlogInteractions() {
+        const blogArticles = document.querySelectorAll('.blog-article');
+
+        blogArticles.forEach(article => {
+            const blogTitle = article.querySelector('.blog-title');
+            if (!blogTitle) return;
+
+            const blogName = blogTitle.textContent.trim();
+
+            // 创建互动容器
+            const interactionContainer = document.createElement('div');
+            interactionContainer.className = 'blog-interaction';
+            interactionContainer.setAttribute('data-blog', blogName);
+
+            // 点赞数和评论数统计
+            const likeCount = this.likes[blogName] ? this.likes[blogName].count : 0;
+            const isLiked = this.likes[blogName] && this.likes[blogName].users.includes(this.currentUser);
+            const commentCount = this.comments[blogName] ? this.comments[blogName].length : 0;
+
+            interactionContainer.innerHTML = `
+                <div class="blog-stats">
+                    <div class="blog-stat">
+                        <span class="blog-stat-icon ${isLiked ? 'liked' : ''}">${isLiked ? '♥' : '○'}</span>
+                        <span class="blog-stat-count">${likeCount}</span>
+                    </div>
+                    <div class="blog-stat">
+                        <span class="blog-stat-icon">💬</span>
+                        <span class="blog-stat-count">${commentCount}</span>
+                    </div>
+                </div>
+                <div class="blog-actions">
+                    <button class="blog-btn-like ${isLiked ? 'liked' : ''}">
+                        ${isLiked ? '已点赞' : '点赞'}
+                    </button>
+                    <button class="blog-btn-comment">
+                        评论
+                    </button>
+                </div>
+                <div class="blog-comments-section" style="display: none;">
+                    <div class="blog-comments-list"></div>
+                    <div class="blog-comment-input-wrapper">
+                        <textarea class="blog-comment-input" placeholder="输入你的评论..." rows="3"></textarea>
+                        <button class="blog-btn-submit">发送评论</button>
+                    </div>
+                </div>
+            `;
+
+            article.appendChild(interactionContainer);
+
+            // 绑定点赞按钮
+            const likeBtn = interactionContainer.querySelector('.blog-btn-like');
+            likeBtn.addEventListener('click', () => {
+                this.toggleBlogLike(blogName, interactionContainer);
+            });
+
+            // 绑定评论按钮
+            const commentBtn = interactionContainer.querySelector('.blog-btn-comment');
+            const commentsSection = interactionContainer.querySelector('.blog-comments-section');
+            commentBtn.addEventListener('click', () => {
+                const isVisible = commentsSection.style.display !== 'none';
+                commentsSection.style.display = isVisible ? 'none' : 'block';
+                if (!isVisible) {
+                    this.renderBlogComments(blogName, interactionContainer);
+                }
+            });
+
+            // 绑定提交评论按钮
+            const submitBtn = interactionContainer.querySelector('.blog-btn-submit');
+            const commentInput = interactionContainer.querySelector('.blog-comment-input');
+            submitBtn.addEventListener('click', () => {
+                const text = commentInput.value.trim();
+                if (text) {
+                    this.addBlogComment(blogName, text);
+                    commentInput.value = '';
+                    this.renderBlogComments(blogName, interactionContainer);
+                    this.updateBlogStats(blogName, interactionContainer);
+                }
+            });
+        });
+    }
+
+    // 切换博客点赞
+    toggleBlogLike(blogName, container) {
+        if (!this.likes[blogName]) {
+            this.likes[blogName] = { count: 0, users: [] };
+        }
+
+        const isLiked = this.likes[blogName].users.includes(this.currentUser);
+
+        if (isLiked) {
+            this.likes[blogName].count--;
+            this.likes[blogName].users = this.likes[blogName].users.filter(user => user !== this.currentUser);
+        } else {
+            this.likes[blogName].count++;
+            this.likes[blogName].users.push(this.currentUser);
+        }
+
+        this.saveData();
+        this.updateBlogStats(blogName, container);
+
+        const message = isLiked ? `已取消点赞 ${blogName}` : `成功点赞 ${blogName}`;
+        this.showNotification(message);
+    }
+
+    // 添加博客评论
+    addBlogComment(blogName, text) {
+        if (!this.comments[blogName]) {
+            this.comments[blogName] = [];
+        }
+
+        this.comments[blogName].push({
+            author: this.currentUser,
+            text: text,
+            timestamp: new Date().toLocaleString()
+        });
+
+        this.saveData();
+        this.showNotification('评论已添加');
+    }
+
+    // 渲染博客评论
+    renderBlogComments(blogName, container) {
+        const commentsList = container.querySelector('.blog-comments-list');
+        const comments = this.comments[blogName] || [];
+
+        if (comments.length === 0) {
+            commentsList.innerHTML = '<div class="no-comments">暂无评论，快来抢沙发吧！</div>';
+            return;
+        }
+
+        commentsList.innerHTML = '';
+        comments.forEach(comment => {
+            const commentItem = document.createElement('div');
+            commentItem.className = 'blog-comment-item';
+            commentItem.innerHTML = `
+                <div class="blog-comment-header">
+                    <span class="blog-comment-author">${comment.author}</span>
+                    <span class="blog-comment-time">${comment.timestamp}</span>
+                </div>
+                <div class="blog-comment-text">${comment.text}</div>
+            `;
+            commentsList.appendChild(commentItem);
+        });
+    }
+
+    // 更新博客统计信息
+    updateBlogStats(blogName, container) {
+        const likeCount = this.likes[blogName] ? this.likes[blogName].count : 0;
+        const isLiked = this.likes[blogName] && this.likes[blogName].users.includes(this.currentUser);
+        const commentCount = this.comments[blogName] ? this.comments[blogName].length : 0;
+
+        const statIcon = container.querySelector('.blog-stat-icon');
+        const statCount = container.querySelector('.blog-stat-count');
+        const commentStatCount = container.querySelectorAll('.blog-stat-count')[1];
+        const likeBtn = container.querySelector('.blog-btn-like');
+
+        statIcon.className = `blog-stat-icon ${isLiked ? 'liked' : ''}`;
+        statIcon.textContent = isLiked ? '♥' : '○';
+        statCount.textContent = likeCount;
+        commentStatCount.textContent = commentCount;
+        likeBtn.className = `blog-btn-like ${isLiked ? 'liked' : ''}`;
+        likeBtn.textContent = isLiked ? '已点赞' : '点赞';
     }
 
     // 更新项目点赞按钮
