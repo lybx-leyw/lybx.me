@@ -263,15 +263,21 @@ class SimpleInteraction {
             }
         });
 
-        // 绑定保存用户名按钮
-        modal.querySelector('.btn-save-user').addEventListener('click', () => {
-            this.saveUsername();
-        });
+        // 绑定保存用户名按钮（仅旧版界面需要）
+        const saveUserBtn = modal.querySelector('.btn-save-user');
+        if (saveUserBtn) {
+            saveUserBtn.addEventListener('click', () => {
+                this.saveUsername();
+            });
+        }
 
-        // 绑定作者ID验证按钮
-        modal.querySelector('.btn-verify-author').addEventListener('click', () => {
-            this.verifyAuthorId();
-        });
+        // 绑定作者ID验证按钮（仅旧版界面需要）
+        const verifyAuthorBtn = modal.querySelector('.btn-verify-author');
+        if (verifyAuthorBtn) {
+            verifyAuthorBtn.addEventListener('click', () => {
+                this.verifyAuthorId();
+            });
+        }
 
         // 渲染项目列表
         this.renderProjects();
