@@ -95,12 +95,62 @@ class SimpleInteraction {
 
     // 显示公告
     showAnnouncement(content) {
+        // 先更新模态框内的公告显示
         const announcementSection = document.querySelector('.announcement-section');
         const announcementContent = document.querySelector('.announcement-content');
         if (announcementSection && announcementContent) {
             announcementContent.textContent = content;
             announcementSection.style.display = 'block';
         }
+
+        // 弹窗公告（如果存在且未关闭过）
+        const dismissedAnnouncements = JSON.parse(localStorage.getItem('lybx_dismissed_announcements') || '[]');
+        if (content && !dismissedAnnouncements.includes(content)) {
+            this.showAnnouncementPopup(content);
+        }
+    }
+
+    // 显示弹窗公告
+    showAnnouncementPopup(content) {
+        // 检查是否已有弹窗
+        if (document.querySelector('.announcement-popup')) {
+            return;
+        }
+
+        const popup = document.createElement('div');
+        popup.className = 'announcement-popup';
+        popup.innerHTML = `
+            <div class="announcement-popup-content">
+                <div class="announcement-popup-header">
+                    <span class="announcement-popup-title">📢 公告</span>
+                    <button class="announcement-popup-close">×</button>
+                </div>
+                <div class="announcement-popup-body">
+                    ${this.escapeHtml(content)}
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(popup);
+
+        // 关闭按钮
+        popup.querySelector('.announcement-popup-close').addEventListener('click', () => {
+            popup.remove();
+            // 记录已关闭的公告
+            const dismissed = JSON.parse(localStorage.getItem('lybx_dismissed_announcements') || '[]');
+            dismissed.push(content);
+            localStorage.setItem('lybx_dismissed_announcements', JSON.stringify(dismissed));
+        });
+
+        // 点击遮罩关闭
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+                popup.remove();
+                const dismissed = JSON.parse(localStorage.getItem('lybx_dismissed_announcements') || '[]');
+                dismissed.push(content);
+                localStorage.setItem('lybx_dismissed_announcements', JSON.stringify(dismissed));
+            }
+        });
     }
 
     // 更新作者状态显示
