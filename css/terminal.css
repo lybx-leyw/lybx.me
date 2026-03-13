@@ -716,3 +716,263 @@
         opacity: 1;
     }
 }
+
+/* 作者ID输入框样式 */
+.author-id-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.author-id-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #ffffff;
+    color: var(--text-color);
+    transition: border-color 0.3s ease;
+}
+
+.dark-mode .author-id-input {
+    background-color: #1a1a1a;
+    border-color: #444;
+    color: #f5f5f5;
+}
+
+.author-id-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.btn-verify-author {
+    padding: 10px 20px;
+    background-color: #ff9800;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-verify-author:hover {
+    background-color: #f57c00;
+}
+
+/* 作者认证状态 */
+.author-status {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #e8f5e9;
+    border-radius: 8px;
+}
+
+.dark-mode .author-status {
+    background-color: #1b5e20;
+}
+
+.author-badge {
+    color: #2e7d32;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.dark-mode .author-badge {
+    color: #81c784;
+}
+
+/* 公告栏样式 */
+.announcement-section {
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff3e0;
+    border: 2px solid #ff9800;
+}
+
+.dark-mode .announcement-section {
+    background-color: #3e2723;
+    border-color: #ffb74d;
+}
+
+.announcement-banner {
+    background-color: #ff9800;
+    color: white;
+    padding: 10px 15px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.dark-mode .announcement-banner {
+    background-color: #f57c00;
+}
+
+.announcement-content {
+    padding: 15px;
+    color: var(--text-color);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.dark-mode .announcement-content {
+    color: #f5f5f5;
+}
+
+/* ============================================
+   登录/注册认证样式
+   ============================================ */
+
+/* 认证区域 */
+.auth-section {
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.dark-mode .auth-section {
+    background-color: #2a2a2a;
+}
+
+.auth-note {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #fff3e0;
+    border-radius: 6px;
+    border-left: 3px solid #ff9800;
+}
+
+.dark-mode .auth-note {
+    background-color: #3e2723;
+    color: #ffcc80;
+}
+
+/* 密码输入框 */
+.password-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dark-mode .password-input {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #f5f5f5;
+}
+
+.password-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* 认证按钮组 */
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-login,
+.btn-register,
+.btn-logout {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-login {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-login:hover {
+    background-color: var(--secondary-color);
+}
+
+.btn-register {
+    background-color: #2196f3;
+    color: white;
+}
+
+.btn-register:hover {
+    background-color: #1976d2;
+}
+
+.btn-logout {
+    background-color: #f44336;
+    color: white;
+    flex: none;
+    padding: 10px 20px;
+}
+
+.btn-logout:hover {
+    background-color: #d32f2f;
+}
+
+/* 登录错误提示 */
+.login-error {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #ffebee;
+    border-radius: 6px;
+    color: #c62828;
+    font-size: 13px;
+    border-left: 3px solid #f44336;
+}
+
+.dark-mode .login-error {
+    background-color: #3e2723;
+    color: #ef9a9a;
+}
+
+/* 已登录用户信息 */
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 15px;
+    background-color: #e8f5e9;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.dark-mode .user-info {
+    background-color: #1b5e20;
+}
+
+.user-badge {
+    color: #2e7d32;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.dark-mode .user-badge {
+    color: #81c784;
+}
+
+/* 用户输入框wrapper - 修复布局 */
+.user-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+}

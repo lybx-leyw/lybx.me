@@ -23,8 +23,18 @@ class SimpleInteraction {
             localStorage.setItem('lybx_user_id', this.userId);
         }
 
-        this.currentUser = localStorage.getItem('lybx_username') || '访客';
+        // 作者专属 ID
+        this.authorId = localStorage.getItem('lybx_author_id') || '';
+        this.isAuthor = localStorage.getItem('lybx_is_author') === 'true';
+
+        // 用户登录信息
+        this.currentUser = localStorage.getItem('lybx_username') || '';
+        this.userPassword = localStorage.getItem('lybx_password') || '';
+        this.isLoggedIn = localStorage.getItem('lybx_is_logged_in') === 'true';
         this.currentProject = null;
+
+        // 公告栏
+        this.announcement = localStorage.getItem('lybx_announcement') || '';
 
         this.init();
     }
@@ -33,11 +43,71 @@ class SimpleInteraction {
         // 从 Supabase 加载数据
         await this.loadDataFromSupabase();
 
+        // 加载公告
+        await this.loadAnnouncement();
+
         this.createInteractionButton();
         this.createInteractionModal();
         this.addProjectLikeButtons();
         this.addBlogInteractions();
         this.bindEvents();
+
+        // 更新作者状态显示
+        this.updateAuthorStatus();
+    }
+
+    // 加载公告
+    async loadAnnouncement() {
+        try {
+            const { data, error } = await this.supabase
+                .from('announcements')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single();
+
+            if (error) {
+                // 如果表不存在，尝试创建
+                if (error.code === '42P01') {
+                    await this.createAnnouncementsTable();
+                }
+                return;
+            }
+
+            if (data && data.content) {
+                this.announcement = data.content;
+                localStorage.setItem('lybx_announcement', data.content);
+                this.showAnnouncement(data.content);
+            }
+        } catch (error) {
+            console.error('加载公告失败:', error);
+        }
+    }
+
+    // 创建公告表
+    async createAnnouncementsTable() {
+        try {
+            await this.supabase.rpc('create_announcements_table', {});
+        } catch (error) {
+            console.log('公告表创建需要手动在 Supabase 执行');
+        }
+    }
+
+    // 显示公告
+    showAnnouncement(content) {
+        const announcementSection = document.querySelector('.announcement-section');
+        const announcementContent = document.querySelector('.announcement-content');
+        if (announcementSection && announcementContent) {
+            announcementContent.textContent = content;
+            announcementSection.style.display = 'block';
+        }
+    }
+
+    // 更新作者状态显示
+    updateAuthorStatus() {
+        if (this.authorStatus) {
+            this.authorStatus.style.display = this.isAuthor ? 'block' : 'none';
+        }
     }
 
     // 从 Supabase 加载数据
@@ -137,6 +207,10 @@ class SimpleInteraction {
     createInteractionModal() {
         const modal = document.createElement('div');
         modal.className = 'interaction-modal';
+
+        // 根据登录状态显示不同内容
+        const authSection = this.isLoggedIn ? this.getLoggedInSection() : this.getLoginSection();
+
         modal.innerHTML = `
             <div class="interaction-container">
                 <div class="interaction-header">
@@ -144,17 +218,16 @@ class SimpleInteraction {
                     <button class="interaction-close">×</button>
                 </div>
                 <div class="interaction-body">
-                    <!-- 用户设置 -->
-                    <div class="interaction-section">
-                        <h3 class="section-heading">用户设置</h3>
-                        <div class="user-input-wrapper">
-                            <input type="text" class="user-input" placeholder="输入你的昵称..." value="${this.currentUser}">
-                            <button class="btn-save-user">保存</button>
-                        </div>
+                    <!-- 公告栏 -->
+                    <div class="interaction-section announcement-section" id="announcementSection" style="display: none;">
+                        <div class="announcement-banner">📢 公告</div>
+                        <div class="announcement-content" id="announcementContent"></div>
                     </div>
 
+                    ${authSection}
+
                     <!-- 项目列表 -->
-                    <div class="interaction-section">
+                    <div class="interaction-section" id="projectsSection" style="display: none;">
                         <h3 class="section-heading">项目列表</h3>
                         <div class="projects-list" id="projectsList"></div>
                     </div>
@@ -165,7 +238,18 @@ class SimpleInteraction {
         document.body.appendChild(modal);
         this.modal = modal;
         this.userInput = modal.querySelector('.user-input');
+        this.passwordInput = modal.querySelector('.password-input');
         this.projectsList = modal.querySelector('#projectsList');
+        this.authorIdInput = modal.querySelector('.author-id-input');
+        this.authorStatus = modal.querySelector('.author-status');
+        this.announcementSection = modal.querySelector('#announcementSection');
+        this.announcementContent = modal.querySelector('#announcementContent');
+        this.projectsSection = modal.querySelector('#projectsSection');
+
+        // 如果已登录，显示项目列表
+        if (this.isLoggedIn) {
+            this.showProjectsSection();
+        }
 
         // 绑定关闭按钮
         modal.querySelector('.interaction-close').addEventListener('click', () => {
@@ -184,6 +268,11 @@ class SimpleInteraction {
             this.saveUsername();
         });
 
+        // 绑定作者ID验证按钮
+        modal.querySelector('.btn-verify-author').addEventListener('click', () => {
+            this.verifyAuthorId();
+        });
+
         // 渲染项目列表
         this.renderProjects();
     }
@@ -199,13 +288,257 @@ class SimpleInteraction {
         this.modal.classList.remove('active');
     }
 
+    // 获取登录/注册界面
+    getLoginSection() {
+        const escapedUser = this.escapeHtml(this.currentUser);
+        return `
+            <div class="interaction-section auth-section">
+                <h3 class="section-heading">登录 / 注册</h3>
+                <p class="auth-note">"绿意不息" 为作者专属昵称，其他用户请先注册</p>
+                <div class="user-input-wrapper">
+                    <input type="text" class="user-input" placeholder="输入你的昵称..." value="${escapedUser}">
+                </div>
+                <div class="user-input-wrapper">
+                    <input type="password" class="password-input" placeholder="输入密码...">
+                </div>
+                <div class="auth-buttons">
+                    <button class="btn-login">登录</button>
+                    <button class="btn-register">注册</button>
+                </div>
+                <div class="login-error" style="color: red; display: none; margin-top: 10px;"></div>
+            </div>
+        `;
+    }
+
+    // 获取已登录界面
+    getLoggedInSection() {
+        const escapedUser = this.escapeHtml(this.currentUser);
+        return `
+            <div class="interaction-section">
+                <h3 class="section-heading">当前用户: ${escapedUser}</h3>
+                <div class="user-info">
+                    <span class="user-badge">✓ 已登录</span>
+                    <button class="btn-logout">退出登录</button>
+                </div>
+                ${this.isAuthor ? '<div class="author-status"><span class="author-badge">✓ 作者认证</span></div>' : ''}
+            </div>
+        `;
+    }
+
+    // HTML转义防止XSS
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // 显示项目列表区域
+    showProjectsSection() {
+        if (this.projectsSection) {
+            this.projectsSection.style.display = 'block';
+        }
+    }
+
     // 绑定事件
     bindEvents() {
+        const modal = this.modal;
+        const self = this;
+
         // ESC关闭模态框
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.modal.classList.contains('active')) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
                 this.closeModal();
             }
+        });
+
+        // 登录按钮
+        const loginBtn = modal.querySelector('.btn-login');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => this.handleLogin());
+        }
+
+        // 注册按钮
+        const registerBtn = modal.querySelector('.btn-register');
+        if (registerBtn) {
+            registerBtn.addEventListener('click', () => this.handleRegister());
+        }
+
+        // 退出登录按钮
+        const logoutBtn = modal.querySelector('.btn-logout');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => this.handleLogout());
+        }
+    }
+
+    // 处理登录
+    async handleLogin() {
+        const username = this.modal.querySelector('.user-input').value.trim();
+        const password = this.modal.querySelector('.password-input').value;
+        const errorDiv = this.modal.querySelector('.login-error');
+
+        if (!username || !password) {
+            errorDiv.textContent = '请输入昵称和密码';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // 检查是否为作者专属昵称
+        if (username === '绿意不息') {
+            errorDiv.textContent = '此昵称为作者专属，请联系作者获取权限';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        try {
+            // 从 users 表查询用户
+            const { data, error } = await this.supabase
+                .from('users')
+                .select('*')
+                .eq('username', username)
+                .single();
+
+            if (error || !data) {
+                errorDiv.textContent = '用户不存在，请先注册';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // 验证密码
+            if (data.password !== password) {
+                errorDiv.textContent = '密码错误';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // 登录成功
+            this.currentUser = username;
+            this.userId = data.user_id;
+            this.isLoggedIn = true;
+            localStorage.setItem('lybx_username', username);
+            localStorage.setItem('lybx_password', password);
+            localStorage.setItem('lybx_user_id', data.user_id);
+            localStorage.setItem('lybx_is_logged_in', 'true');
+
+            this.showNotification('登录成功！');
+            this.refreshModal();
+            this.renderProjects();
+            this.updateProjectLikeButtons();
+            this.updateAllBlogStats();
+
+        } catch (error) {
+            console.error('登录失败:', error);
+            errorDiv.textContent = '登录失败，请稍后重试';
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    // 处理注册
+    async handleRegister() {
+        const username = this.modal.querySelector('.user-input').value.trim();
+        const password = this.modal.querySelector('.password-input').value;
+        const errorDiv = this.modal.querySelector('.login-error');
+
+        if (!username || !password) {
+            errorDiv.textContent = '请输入昵称和密码';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        if (username.length < 2) {
+            errorDiv.textContent = '昵称至少需要2个字符';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        if (password.length < 4) {
+            errorDiv.textContent = '密码至少需要4个字符';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // 检查是否为作者专属昵称
+        if (username === '绿意不息') {
+            errorDiv.textContent = '此昵称为作者专属，无法注册';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        try {
+            // 检查昵称是否已被使用
+            const { data: existing, error: checkError } = await this.supabase
+                .from('users')
+                .select('username')
+                .eq('username', username)
+                .single();
+
+            if (existing) {
+                errorDiv.textContent = '该昵称已被注册';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // 生成新的 userId
+            const newUserId = 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+
+            // 创建新用户
+            const { error: insertError } = await this.supabase
+                .from('users')
+                .insert({
+                    username: username,
+                    password: password,
+                    user_id: newUserId
+                });
+
+            if (insertError) throw insertError;
+
+            // 注册成功，自动登录
+            this.currentUser = username;
+            this.userId = newUserId;
+            this.isLoggedIn = true;
+            localStorage.setItem('lybx_username', username);
+            localStorage.setItem('lybx_password', password);
+            localStorage.setItem('lybx_user_id', newUserId);
+            localStorage.setItem('lybx_is_logged_in', 'true');
+
+            this.showNotification('注册成功！已自动登录');
+            this.refreshModal();
+            this.renderProjects();
+            this.updateProjectLikeButtons();
+            this.updateAllBlogStats();
+
+        } catch (error) {
+            console.error('注册失败:', error);
+            errorDiv.textContent = '注册失败，请稍后重试';
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    // 处理退出登录
+    handleLogout() {
+        this.currentUser = '';
+        this.userPassword = '';
+        this.isLoggedIn = false;
+        localStorage.removeItem('lybx_username');
+        localStorage.removeItem('lybx_password');
+        localStorage.removeItem('lybx_is_logged_in');
+
+        this.showNotification('已退出登录');
+        this.refreshModal();
+    }
+
+    // 刷新模态框
+    refreshModal() {
+        this.modal.remove();
+        this.createInteractionModal();
+        this.bindEvents();
+    }
+
+    // 更新所有博客统计
+    updateAllBlogStats() {
+        const blogInteractions = document.querySelectorAll('.blog-interaction');
+        blogInteractions.forEach(container => {
+            const blogName = container.getAttribute('data-blog');
+            this.updateBlogStats(blogName, container);
         });
     }
 
@@ -435,14 +768,125 @@ class SimpleInteraction {
         }
     }
 
-    // 保存用户名
-    saveUsername() {
+    // 保存用户名（检查昵称唯一性）
+    async saveUsername() {
         const newUsername = this.userInput.value.trim();
-        if (newUsername) {
+        if (!newUsername) {
+            this.showNotification('请输入昵称');
+            return;
+        }
+
+        // 检查昵称是否已被使用（通过查询 likes 和 comments 表）
+        try {
+            const { data: existingLikes, error: likesError } = await this.supabase
+                .from('likes')
+                .select('username, user_id')
+                .eq('username', newUsername);
+
+            const { data: existingComments, error: commentsError } = await this.supabase
+                .from('comments')
+                .select('username, user_id')
+                .eq('username', newUsername);
+
+            if (likesError || commentsError) {
+                console.error('检查昵称失败', likesError || commentsError);
+            }
+
+            // 如果昵称已被使用，且不是当前用户
+            const existingUsers = [...(existingLikes || []), ...(existingComments || [])];
+            const isTaken = existingUsers.some(u => u.user_id !== this.userId);
+
+            if (isTaken) {
+                this.showNotification('该昵称已被使用，请更换');
+                return;
+            }
+
             this.currentUser = newUsername;
             localStorage.setItem('lybx_username', newUsername);
             this.showNotification('用户名已保存');
             this.renderProjects();
+            this.updateProjectLikeButtons();
+
+            // 刷新博客互动显示
+            const blogInteractions = document.querySelectorAll('.blog-interaction');
+            blogInteractions.forEach(container => {
+                const blogName = container.getAttribute('data-blog');
+                this.updateBlogStats(blogName, container);
+            });
+        } catch (error) {
+            console.error('保存用户名失败:', error);
+            this.showNotification('保存失败，请稍后重试');
+        }
+    }
+
+    // 验证作者 ID
+    async verifyAuthorId() {
+        const authorId = this.authorIdInput.value.trim();
+        if (!authorId) {
+            this.showNotification('请输入作者ID');
+            return;
+        }
+
+        // 从 Supabase 获取作者 ID 列表
+        try {
+            const { data, error } = await this.supabase
+                .from('author_ids')
+                .select('*')
+                .eq('author_id', authorId)
+                .single();
+
+            if (error || !data) {
+                this.showNotification('作者ID验证失败');
+                return;
+            }
+
+            // 验证成功
+            this.authorId = authorId;
+            this.isAuthor = true;
+            localStorage.setItem('lybx_author_id', authorId);
+            localStorage.setItem('lybx_is_author', 'true');
+            this.updateAuthorStatus();
+            this.showNotification('作者身份验证成功！');
+
+            // 创建作者 ID 表（如果不存在）
+            await this.ensureAuthorIdsTable();
+            await this.ensureAnnouncementsTable();
+        } catch (error) {
+            console.error('作者验证失败:', error);
+            this.showNotification('作者ID验证失败');
+        }
+    }
+
+    // 确保作者ID表存在
+    async ensureAuthorIdsTable() {
+        try {
+            // 尝试插入一个默认作者ID（如果表为空或不存在会失败，这是正常的）
+            const { error } = await this.supabase
+                .from('author_ids')
+                .select('id')
+                .limit(1);
+
+            if (error && error.code === '42P01') {
+                console.log('作者ID表不存在，需要在Supabase中创建');
+            }
+        } catch (e) {
+            console.log('检查作者ID表失败');
+        }
+    }
+
+    // 确保公告表存在
+    async ensureAnnouncementsTable() {
+        try {
+            const { error } = await this.supabase
+                .from('announcements')
+                .select('id')
+                .limit(1);
+
+            if (error && error.code === '42P01') {
+                console.log('公告表不存在，需要在Supabase中创建');
+            }
+        } catch (e) {
+            console.log('检查公告表失败');
         }
     }
 
