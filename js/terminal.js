@@ -319,6 +319,23 @@ class SimpleInteraction {
     // 获取已登录界面
     getLoggedInSection() {
         const escapedUser = this.escapeHtml(this.currentUser);
+        
+        // 作者管理区域
+        const authorSection = this.isAuthor ? `
+            <div class="author-manage-section">
+                <h4 class="section-subheading">👑 作者管理</h4>
+                
+                <div class="announcement-manage">
+                    <h5>公告管理</h5>
+                    <textarea class="announcement-input" id="authorAnnouncement" placeholder="输入公告内容..." rows="3">${this.escapeHtml(this.announcement)}</textarea>
+                    <div class="announcement-buttons">
+                        <button class="btn-publish-announcement">发布公告</button>
+                        <button class="btn-clear-announcement">清除公告</button>
+                    </div>
+                </div>
+            </div>
+        ` : '';
+
         return `
             <div class="interaction-section">
                 <h3 class="section-heading">当前用户: ${escapedUser}</h3>
@@ -327,6 +344,7 @@ class SimpleInteraction {
                     <button class="btn-logout">退出登录</button>
                 </div>
                 ${this.isAuthor ? '<div class="author-status"><span class="author-badge">✓ 作者认证</span></div>' : ''}
+                ${authorSection}
             </div>
         `;
     }
@@ -383,6 +401,95 @@ class SimpleInteraction {
         const logoutBtn = modal.querySelector('.btn-logout');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => this.handleLogout());
+        }
+
+        // 作者管理按钮
+        const publishBtn = modal.querySelector('.btn-publish-announcement');
+        if (publishBtn) {
+            publishBtn.addEventListener('click', () => this.publishAnnouncement());
+        }
+
+        const clearBtn = modal.querySelector('.btn-clear-announcement');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => this.clearAnnouncement());
+        }
+    }
+
+    // 发布公告
+    async publishAnnouncement() {
+        if (!this.isAuthor) {
+            this.showNotification('只有作者才能发布公告');
+            return;
+        }
+
+        const announcementInput = this.modal.querySelector('.announcement-input');
+        const content = announcementInput.value.trim();
+
+        if (!content) {
+            this.showNotification('请输入公告内容');
+            return;
+        }
+
+        try {
+            // 检查是否已有公告
+            const { data: existing } = await this.supabase
+                .from('announcements')
+                .select('id')
+                .limit(1)
+                .single();
+
+            if (existing) {
+                // 更新公告
+                await this.supabase
+                    .from('announcements')
+                    .update({ content: content, updated_at: new Date().toISOString() })
+                    .eq('id', existing.id);
+            } else {
+                // 创建新公告
+                await this.supabase
+                    .from('announcements')
+                    .insert({ content: content });
+            }
+
+            this.announcement = content;
+            localStorage.setItem('lybx_announcement', content);
+            this.showNotification('公告已发布！');
+            
+            // 更新前端显示
+            this.showAnnouncement(content);
+            this.refreshModal();
+        } catch (error) {
+            console.error('发布公告失败:', error);
+            this.showNotification('发布失败，请稍后重试');
+        }
+    }
+
+    // 清除公告
+    async clearAnnouncement() {
+        if (!this.isAuthor) {
+            this.showNotification('只有作者才能清除公告');
+            return;
+        }
+
+        try {
+            await this.supabase
+                .from('announcements')
+                .delete()
+                .neq('id', 0);
+
+            this.announcement = '';
+            localStorage.removeItem('lybx_announcement');
+            this.showNotification('公告已清除');
+            
+            // 隐藏前端显示
+            const announcementSection = document.querySelector('.announcement-section');
+            if (announcementSection) {
+                announcementSection.style.display = 'none';
+            }
+            this.refreshModal();
+        } catch (error) {
+            console.error('清除公告失败:', error);
+            this.showNotification('清除失败，请稍后重试');
         }
     }
 
@@ -772,17 +879,33 @@ class SimpleInteraction {
         }
 
         commentsList.innerHTML = '';
-        comments.forEach(comment => {
+        comments.forEach((comment, index) => {
             const commentItem = document.createElement('div');
             commentItem.className = 'comment-item';
+            
+            // 检查是否可以删除（作者或评论作者）
+            const canDelete = this.isAuthor || (comment.user_id === this.userId);
+            const deleteBtn = canDelete ? `<button class="btn-delete-comment" data-index="${index}" data-project="${projectName}" data-user-id="${comment.user_id}">删除</button>` : '';
+            
             commentItem.innerHTML = `
                 <div class="comment-header">
-                    <span class="comment-author">${comment.author}</span>
+                    <span class="comment-author">${this.escapeHtml(comment.author)}</span>
                     <span class="comment-time">${comment.timestamp}</span>
+                    ${deleteBtn}
                 </div>
-                <div class="comment-text">${comment.text}</div>
+                <div class="comment-text">${this.escapeHtml(comment.text)}</div>
             `;
             commentsList.appendChild(commentItem);
+        });
+
+        // 绑定删除按钮事件
+        commentsList.querySelectorAll('.btn-delete-comment').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const projectName = btn.getAttribute('data-project');
+                const userId = btn.getAttribute('data-user-id');
+                const index = parseInt(btn.getAttribute('data-index'));
+                await this.deleteComment(projectName, userId, index);
+            });
         });
     }
 
@@ -824,6 +947,40 @@ class SimpleInteraction {
         } catch (error) {
             console.error('评论添加失败:', error);
             this.showNotification('评论失败，请稍后重试');
+        }
+    }
+
+    // 删除评论
+    async deleteComment(projectName, userId, index) {
+        if (!this.isAuthor && userId !== this.userId) {
+            this.showNotification('你没有权限删除此评论');
+            return;
+        }
+
+        try {
+            // 从 Supabase 删除
+            await this.supabase
+                .from('comments')
+                .delete()
+                .match({ target_name: projectName, user_id: userId });
+
+            // 从本地删除
+            if (this.comments[projectName]) {
+                this.comments[projectName].splice(index, 1);
+            }
+
+            this.saveData();
+            this.showNotification('评论已删除');
+            
+            // 刷新评论显示
+            this.renderComments(projectName);
+            this.renderProjects();
+            
+            // 刷新博客评论
+            this.refreshAllViews();
+        } catch (error) {
+            console.error('删除评论失败:', error);
+            this.showNotification('删除失败，请稍后重试');
         }
     }
 
@@ -1227,18 +1384,69 @@ class SimpleInteraction {
         }
 
         commentsList.innerHTML = '';
-        comments.forEach(comment => {
+        comments.forEach((comment, index) => {
             const commentItem = document.createElement('div');
             commentItem.className = 'blog-comment-item';
+            
+            // 检查是否可以删除（作者或评论作者）
+            const canDelete = this.isAuthor || (comment.user_id === this.userId);
+            const deleteBtn = canDelete ? `<button class="btn-blog-delete-comment" data-blog="${blogName}" data-user-id="${comment.user_id}" data-index="${index}">删除</button>` : '';
+            
             commentItem.innerHTML = `
                 <div class="blog-comment-header">
-                    <span class="blog-comment-author">${comment.author}</span>
+                    <span class="blog-comment-author">${this.escapeHtml(comment.author)}</span>
                     <span class="blog-comment-time">${comment.timestamp}</span>
+                    ${deleteBtn}
                 </div>
-                <div class="blog-comment-text">${comment.text}</div>
+                <div class="blog-comment-text">${this.escapeHtml(comment.text)}</div>
             `;
             commentsList.appendChild(commentItem);
         });
+
+        // 绑定博客评论删除按钮
+        commentsList.querySelectorAll('.btn-blog-delete-comment').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const blogName = btn.getAttribute('data-blog');
+                const userId = btn.getAttribute('data-user-id');
+                const index = parseInt(btn.getAttribute('data-index'));
+                await this.deleteBlogComment(blogName, userId, index);
+            });
+        });
+    }
+
+    // 删除博客评论
+    async deleteBlogComment(blogName, userId, index) {
+        if (!this.isAuthor && userId !== this.userId) {
+            this.showNotification('你没有权限删除此评论');
+            return;
+        }
+
+        try {
+            // 从 Supabase 删除
+            await this.supabase
+                .from('comments')
+                .delete()
+                .match({ target_name: blogName, user_id: userId });
+
+            // 从本地删除
+            if (this.comments[blogName]) {
+                this.comments[blogName].splice(index, 1);
+            }
+
+            this.saveData();
+            this.showNotification('评论已删除');
+            
+            // 刷新显示
+            const container = document.querySelector(`.blog-interaction[data-blog="${blogName}"]`);
+            if (container) {
+                this.renderBlogComments(blogName, container);
+                this.updateBlogStats(blogName, container);
+            }
+            this.renderProjects();
+        } catch (error) {
+            console.error('删除评论失败:', error);
+            this.showNotification('删除失败，请稍后重试');
+        }
     }
 
     // 更新博客统计信息

@@ -976,3 +976,116 @@
     gap: 10px;
     margin-bottom: 10px;
 }
+
+/* ============================================
+   作者管理区域样式
+   ============================================ */
+
+.author-manage-section {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #fff3e0;
+    border-radius: 8px;
+    border: 2px solid #ff9800;
+}
+
+.dark-mode .author-manage-section {
+    background-color: #3e2723;
+    border-color: #ffb74d;
+}
+
+.section-subheading {
+    font-size: 15px;
+    font-weight: 600;
+    color: #e65100;
+    margin-bottom: 15px;
+}
+
+.dark-mode .section-subheading {
+    color: #ffcc80;
+}
+
+.announcement-manage h5 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.announcement-input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: vertical;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.dark-mode .announcement-input {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #f5f5f5;
+}
+
+.announcement-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.announcement-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-publish-announcement,
+.btn-clear-announcement {
+    flex: 1;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-publish-announcement {
+    background-color: #4caf50;
+    color: white;
+}
+
+.btn-publish-announcement:hover {
+    background-color: #43a047;
+}
+
+.btn-clear-announcement {
+    background-color: #f44336;
+    color: white;
+}
+
+.btn-clear-announcement:hover {
+    background-color: #e53935;
+}
+
+/* 评论删除按钮 */
+.btn-delete-comment,
+.btn-blog-delete-comment {
+    padding: 4px 10px;
+    border: 1px solid #f44336;
+    border-radius: 4px;
+    background: transparent;
+    color: #f44336;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.btn-delete-comment:hover,
+.btn-blog-delete-comment:hover {
+    background-color: #f44336;
+    color: white;
+}
