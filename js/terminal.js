@@ -474,12 +474,23 @@ class SimpleInteraction {
         }
 
         try {
+            console.log('尝试注册，用户名:', username);
+            
             // 检查昵称是否已被使用
             const { data: existing, error: checkError } = await this.supabase
                 .from('users')
                 .select('username')
                 .eq('username', username)
                 .single();
+
+            console.log('检查结果:', { existing, checkError });
+
+            if (checkError && checkError.code !== 'PGRST116') {
+                // PGRST116 = no rows returned, 这是正常的
+                errorDiv.textContent = '检查用户失败: ' + checkError.message;
+                errorDiv.style.display = 'block';
+                return;
+            }
 
             if (existing) {
                 errorDiv.textContent = '该昵称已被注册';
@@ -489,6 +500,7 @@ class SimpleInteraction {
 
             // 生成新的 userId
             const newUserId = 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            console.log('创建用户，ID:', newUserId);
 
             // 创建新用户
             const { error: insertError } = await this.supabase
@@ -499,7 +511,13 @@ class SimpleInteraction {
                     user_id: newUserId
                 });
 
-            if (insertError) throw insertError;
+            console.log('插入结果:', { insertError });
+            
+            if (insertError) {
+                errorDiv.textContent = '注册失败: ' + insertError.message;
+                errorDiv.style.display = 'block';
+                return;
+            }
 
             // 注册成功，自动登录
             this.currentUser = username;
