@@ -15,6 +15,14 @@ class SimpleInteraction {
         // 本地缓存（用于离线显示）
         this.likes = JSON.parse(localStorage.getItem('lybx_likes')) || {};
         this.comments = JSON.parse(localStorage.getItem('lybx_comments')) || {};
+
+        // 用户唯一标识（解决昵称相同被视为同一人的问题）
+        this.userId = localStorage.getItem('lybx_user_id');
+        if (!this.userId) {
+            this.userId = 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            localStorage.setItem('lybx_user_id', this.userId);
+        }
+
         this.currentUser = localStorage.getItem('lybx_username') || '访客';
         this.currentProject = null;
 
@@ -47,10 +55,17 @@ class SimpleInteraction {
             likesData.forEach(like => {
                 const key = like.target_name;
                 if (!this.likes[key]) {
-                    this.likes[key] = { count: 0, users: [] };
+                    this.likes[key] = { count: 0, users: [], userIds: [] };
                 }
                 this.likes[key].count++;
                 this.likes[key].users.push(like.username);
+                // 加载 userId（兼容旧数据）
+                if (like.user_id) {
+                    if (!this.likes[key].userIds) {
+                        this.likes[key].userIds = [];
+                    }
+                    this.likes[key].userIds.push(like.user_id);
+                }
             });
 
             // 加载 comments
@@ -70,6 +85,7 @@ class SimpleInteraction {
                 }
                 this.comments[key].push({
                     author: comment.username,
+                    user_id: comment.user_id,
                     text: comment.content,
                     timestamp: new Date(comment.created_at).toLocaleString()
                 });
@@ -258,10 +274,11 @@ class SimpleInteraction {
     // 切换点赞
     async toggleLike(projectName) {
         if (!this.likes[projectName]) {
-            this.likes[projectName] = { count: 0, users: [] };
+            this.likes[projectName] = { count: 0, users: [], userIds: [] };
         }
 
-        const isLiked = this.likes[projectName].users.includes(this.currentUser);
+        // 使用 userId 判断是否已点赞（解决昵称相同被视为同一人的问题）
+        const isLiked = this.likes[projectName].userIds && this.likes[projectName].userIds.includes(this.userId);
 
         try {
             if (isLiked) {
@@ -269,18 +286,29 @@ class SimpleInteraction {
                 await this.supabase
                     .from('likes')
                     .delete()
-                    .match({ target_type: 'project', target_name: projectName, username: this.currentUser });
+                    .match({ target_type: 'project', target_name: projectName, user_id: this.userId });
 
                 this.likes[projectName].count--;
+                this.likes[projectName].userIds = this.likes[projectName].userIds.filter(id => id !== this.userId);
+                // 同时也移除旧的昵称记录（兼容旧数据）
                 this.likes[projectName].users = this.likes[projectName].users.filter(user => user !== this.currentUser);
             } else {
                 // 点赞 - 插入到 Supabase
                 await this.supabase
                     .from('likes')
-                    .insert({ target_type: 'project', target_name: projectName, username: this.currentUser });
+                    .insert({ 
+                        target_type: 'project', 
+                        target_name: projectName, 
+                        username: this.currentUser,
+                        user_id: this.userId
+                    });
 
                 this.likes[projectName].count++;
                 this.likes[projectName].users.push(this.currentUser);
+                if (!this.likes[projectName].userIds) {
+                    this.likes[projectName].userIds = [];
+                }
+                this.likes[projectName].userIds.push(this.userId);
             }
 
             this.saveData();
@@ -326,13 +354,12 @@ class SimpleInteraction {
         });
 
         // 绑定提交按钮
-        dialog.querySelector('.btn-submit-comment').addEventListener('click', () => {
+        dialog.querySelector('.btn-submit-comment').addEventListener('click', async () => {
             const input = dialog.querySelector('.comment-input');
             const text = input.value.trim();
             if (text) {
-                this.addComment(projectName, text);
                 input.value = '';
-                this.renderComments(projectName);
+                await this.addComment(projectName, text);
                 this.renderProjects();
             }
         });
@@ -368,7 +395,7 @@ class SimpleInteraction {
     }
 
     // 添加评论
-    async addComment(projectName, text) {
+    async addComment(projectName, text, callback) {
         try {
             // 插入到 Supabase
             const { data, error } = await this.supabase
@@ -377,6 +404,7 @@ class SimpleInteraction {
                     target_type: 'project',
                     target_name: projectName,
                     username: this.currentUser,
+                    user_id: this.userId,  // 使用唯一ID区分用户
                     content: text
                 });
 
@@ -388,12 +416,19 @@ class SimpleInteraction {
 
             this.comments[projectName].push({
                 author: this.currentUser,
+                user_id: this.userId,
                 text: text,
                 timestamp: new Date().toLocaleString()
             });
 
             this.saveData();
             this.showNotification('评论已添加');
+
+            // 刷新评论显示
+            this.renderComments(projectName);
+
+            // 执行回调（如有）
+            if (callback) callback();
         } catch (error) {
             console.error('评论添加失败:', error);
             this.showNotification('评论失败，请稍后重试');
@@ -421,7 +456,7 @@ class SimpleInteraction {
 
             const projectName = projectTitle.textContent.trim();
             const likeCount = this.likes[projectName] ? this.likes[projectName].count : 0;
-            const isLiked = this.likes[projectName] && this.likes[projectName].users.includes(this.currentUser);
+            const isLiked = this.likes[projectName] && this.likes[projectName].userIds && this.likes[projectName].userIds.includes(this.userId);
 
             const likeButton = document.createElement('button');
             likeButton.className = `project-like-button ${isLiked ? 'liked' : ''}`;
@@ -461,9 +496,9 @@ class SimpleInteraction {
             interactionContainer.className = 'blog-interaction';
             interactionContainer.setAttribute('data-blog', blogName);
 
-            // 点赞数和评论数统计
+            // 点赞数和评论数统计（使用 userId 判断）
             const likeCount = this.likes[blogName] ? this.likes[blogName].count : 0;
-            const isLiked = this.likes[blogName] && this.likes[blogName].users.includes(this.currentUser);
+            const isLiked = this.likes[blogName] && this.likes[blogName].userIds && this.likes[blogName].userIds.includes(this.userId);
             const commentCount = this.comments[blogName] ? this.comments[blogName].length : 0;
 
             interactionContainer.innerHTML = `
@@ -516,12 +551,11 @@ class SimpleInteraction {
             // 绑定提交评论按钮
             const submitBtn = interactionContainer.querySelector('.blog-btn-submit');
             const commentInput = interactionContainer.querySelector('.blog-comment-input');
-            submitBtn.addEventListener('click', () => {
+            submitBtn.addEventListener('click', async () => {
                 const text = commentInput.value.trim();
                 if (text) {
-                    this.addBlogComment(blogName, text);
                     commentInput.value = '';
-                    this.renderBlogComments(blogName, interactionContainer);
+                    await this.addBlogComment(blogName, text);
                     this.updateBlogStats(blogName, interactionContainer);
                 }
             });
@@ -531,10 +565,11 @@ class SimpleInteraction {
     // 切换博客点赞
     async toggleBlogLike(blogName, container) {
         if (!this.likes[blogName]) {
-            this.likes[blogName] = { count: 0, users: [] };
+            this.likes[blogName] = { count: 0, users: [], userIds: [] };
         }
 
-        const isLiked = this.likes[blogName].users.includes(this.currentUser);
+        // 使用 userId 判断是否已点赞
+        const isLiked = this.likes[blogName].userIds && this.likes[blogName].userIds.includes(this.userId);
 
         try {
             if (isLiked) {
@@ -542,18 +577,28 @@ class SimpleInteraction {
                 await this.supabase
                     .from('likes')
                     .delete()
-                    .match({ target_type: 'blog', target_name: blogName, username: this.currentUser });
+                    .match({ target_type: 'blog', target_name: blogName, user_id: this.userId });
 
                 this.likes[blogName].count--;
+                this.likes[blogName].userIds = this.likes[blogName].userIds.filter(id => id !== this.userId);
                 this.likes[blogName].users = this.likes[blogName].users.filter(user => user !== this.currentUser);
             } else {
                 // 点赞
                 await this.supabase
                     .from('likes')
-                    .insert({ target_type: 'blog', target_name: blogName, username: this.currentUser });
+                    .insert({ 
+                        target_type: 'blog', 
+                        target_name: blogName, 
+                        username: this.currentUser,
+                        user_id: this.userId
+                    });
 
                 this.likes[blogName].count++;
                 this.likes[blogName].users.push(this.currentUser);
+                if (!this.likes[blogName].userIds) {
+                    this.likes[blogName].userIds = [];
+                }
+                this.likes[blogName].userIds.push(this.userId);
             }
 
             this.saveData();
@@ -568,7 +613,7 @@ class SimpleInteraction {
     }
 
     // 添加博客评论
-    async addBlogComment(blogName, text) {
+    async addBlogComment(blogName, text, callback) {
         try {
             await this.supabase
                 .from('comments')
@@ -576,6 +621,7 @@ class SimpleInteraction {
                     target_type: 'blog',
                     target_name: blogName,
                     username: this.currentUser,
+                    user_id: this.userId,
                     content: text
                 });
 
@@ -585,12 +631,21 @@ class SimpleInteraction {
 
             this.comments[blogName].push({
                 author: this.currentUser,
+                user_id: this.userId,
                 text: text,
                 timestamp: new Date().toLocaleString()
             });
 
             this.saveData();
             this.showNotification('评论已添加');
+
+            // 刷新评论显示
+            const container = document.querySelector(`.blog-interaction[data-blog="${blogName}"]`);
+            if (container) {
+                this.renderBlogComments(blogName, container);
+            }
+
+            if (callback) callback();
         } catch (error) {
             console.error('博客评论添加失败:', error);
             this.showNotification('评论失败，请稍后重试');
