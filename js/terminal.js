@@ -70,7 +70,7 @@ class SimpleInteraction {
                 console.log('公告表查询错误:', error.message);
                 return;
             }
-            
+
             if (!data || data.length === 0) {
                 console.log('暂无公告');
                 return;
@@ -79,8 +79,10 @@ class SimpleInteraction {
             const announcementData = data[0];
             if (announcementData && announcementData.content) {
                 this.announcement = announcementData.content;
+                this.announcementId = announcementData.id;
                 localStorage.setItem('lybx_announcement', announcementData.content);
-                this.showAnnouncement(announcementData.content);
+                localStorage.setItem('lybx_announcement_id', announcementData.id);
+                this.showAnnouncement(announcementData.content, announcementData.id);
                 console.log('公告已加载:', announcementData.content.substring(0, 50) + '...');
             }
         } catch (error) {
@@ -98,10 +100,10 @@ class SimpleInteraction {
     }
 
     // 显示公告
-    showAnnouncement(content) {
+    showAnnouncement(content, announcementId) {
         // 处理换行符
         const formattedContent = this.nl2br(content);
-        
+
         // 先更新模态框内的公告显示
         const announcementSection = document.querySelector('.announcement-section');
         const announcementContent = document.querySelector('.announcement-content');
@@ -110,15 +112,15 @@ class SimpleInteraction {
             announcementSection.style.display = 'block';
         }
 
-        // 弹窗公告（如果存在且未关闭过）
-        const dismissedAnnouncements = JSON.parse(localStorage.getItem('lybx_dismissed_announcements') || '[]');
-        if (content && !dismissedAnnouncements.includes(content)) {
-            this.showAnnouncementPopup(content);
+        // 弹窗公告（使用公告ID检查是否已关闭，而不是内容）
+        const dismissedAnnouncementId = localStorage.getItem('lybx_dismissed_announcement_id');
+        if (content && announcementId && dismissedAnnouncementId != announcementId) {
+            this.showAnnouncementPopup(content, announcementId);
         }
     }
 
     // 显示弹窗公告
-    showAnnouncementPopup(content) {
+    showAnnouncementPopup(content, announcementId) {
         // 检查是否已有弹窗
         if (document.querySelector('.announcement-popup')) {
             return;
@@ -129,7 +131,7 @@ class SimpleInteraction {
         // 先转义再处理换行符
         const escapedContent = this.escapeHtml(content);
         const formattedContent = escapedContent.replace(/\n/g, '<br>');
-        
+
         popup.innerHTML = `
             <div class="announcement-popup-content">
                 <div class="announcement-popup-header">
@@ -144,22 +146,18 @@ class SimpleInteraction {
 
         document.body.appendChild(popup);
 
-        // 关闭按钮
+        // 关闭按钮 - 使用公告ID存储
         popup.querySelector('.announcement-popup-close').addEventListener('click', () => {
             popup.remove();
-            // 记录已关闭的公告
-            const dismissed = JSON.parse(localStorage.getItem('lybx_dismissed_announcements') || '[]');
-            dismissed.push(content);
-            localStorage.setItem('lybx_dismissed_announcements', JSON.stringify(dismissed));
+            // 记录已关闭的公告ID
+            localStorage.setItem('lybx_dismissed_announcement_id', announcementId);
         });
 
         // 点击遮罩关闭
         popup.addEventListener('click', (e) => {
             if (e.target === popup) {
                 popup.remove();
-                const dismissed = JSON.parse(localStorage.getItem('lybx_dismissed_announcements') || '[]');
-                dismissed.push(content);
-                localStorage.setItem('lybx_dismissed_announcements', JSON.stringify(dismissed));
+                localStorage.setItem('lybx_dismissed_announcement_id', announcementId);
             }
         });
     }
@@ -505,25 +503,34 @@ class SimpleInteraction {
                 .limit(1)
                 .single();
 
+            let announcementId;
             if (existing) {
                 // 更新公告
                 await this.supabase
                     .from('announcements')
                     .update({ content: content, updated_at: new Date().toISOString() })
                     .eq('id', existing.id);
+                announcementId = existing.id;
             } else {
-                // 创建新公告
-                await this.supabase
+                // 创建新公告并获取返回的ID
+                const { data: inserted } = await this.supabase
                     .from('announcements')
-                    .insert({ content: content });
+                    .insert({ content: content })
+                    .select()
+                    .single();
+                announcementId = inserted?.id;
             }
 
             this.announcement = content;
+            this.announcementId = announcementId;
             localStorage.setItem('lybx_announcement', content);
+            localStorage.setItem('lybx_announcement_id', announcementId);
+            // 清除之前关闭的公告ID，这样新公告会弹出
+            localStorage.removeItem('lybx_dismissed_announcement_id');
             this.showNotification('公告已发布！');
-            
+
             // 更新前端显示
-            this.showAnnouncement(content);
+            this.showAnnouncement(content, announcementId);
             this.refreshModal();
         } catch (error) {
             console.error('发布公告失败:', error);
@@ -844,7 +851,9 @@ class SimpleInteraction {
                 await this.supabase
                     .from('likes')
                     .delete()
-                    .match({ target_type: 'project', target_name: projectName, user_id: this.userId });
+                    .eq('target_type', 'project')
+                    .eq('target_name', projectName)
+                    .eq('user_id', this.userId);
 
                 this.likes[projectName].count--;
                 this.likes[projectName].userIds = this.likes[projectName].userIds.filter(id => id !== this.userId);
@@ -1025,11 +1034,24 @@ class SimpleInteraction {
         }
 
         try {
-            // 从 Supabase 删除
-            await this.supabase
-                .from('comments')
-                .delete()
-                .match({ target_name: projectName, user_id: userId });
+            // 获取要删除的评论的唯一ID
+            const comments = this.comments[projectName] || [];
+            const commentToDelete = comments[index];
+
+            if (!commentToDelete || !commentToDelete.id) {
+                // 如果没有唯一ID，使用旧的匹配方式
+                await this.supabase
+                    .from('comments')
+                    .delete()
+                    .eq('target_name', projectName)
+                    .eq('user_id', userId);
+            } else {
+                // 使用唯一ID删除
+                await this.supabase
+                    .from('comments')
+                    .delete()
+                    .eq('id', commentToDelete.id);
+            }
 
             // 从本地删除
             if (this.comments[projectName]) {
@@ -1365,7 +1387,9 @@ class SimpleInteraction {
                 await this.supabase
                     .from('likes')
                     .delete()
-                    .match({ target_type: 'blog', target_name: blogName, user_id: this.userId });
+                    .eq('target_type', 'blog')
+                    .eq('target_name', blogName)
+                    .eq('user_id', this.userId);
 
                 this.likes[blogName].count--;
                 this.likes[blogName].userIds = this.likes[blogName].userIds.filter(id => id !== this.userId);
@@ -1489,11 +1513,24 @@ class SimpleInteraction {
         }
 
         try {
-            // 从 Supabase 删除
-            await this.supabase
-                .from('comments')
-                .delete()
-                .match({ target_name: blogName, user_id: userId });
+            // 获取要删除的评论的唯一ID
+            const comments = this.comments[blogName] || [];
+            const commentToDelete = comments[index];
+
+            if (!commentToDelete || !commentToDelete.id) {
+                // 如果没有唯一ID，使用旧的匹配方式
+                await this.supabase
+                    .from('comments')
+                    .delete()
+                    .eq('target_name', blogName)
+                    .eq('user_id', userId);
+            } else {
+                // 使用唯一ID删除
+                await this.supabase
+                    .from('comments')
+                    .delete()
+                    .eq('id', commentToDelete.id);
+            }
 
             // 从本地删除
             if (this.comments[blogName]) {
