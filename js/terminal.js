@@ -332,9 +332,13 @@ class SimpleInteraction {
 
         blogArticles.forEach(article => {
             const blogTitle = article.querySelector('.blog-title');
-            if (!blogTitle) return;
+            if (!blogTitle) {
+                console.log('未找到博客标题元素');
+                return;
+            }
 
             const blogName = blogTitle.textContent.trim();
+            console.log('为博客文章添加互动:', blogName);
 
             // 创建互动容器
             const interactionContainer = document.createElement('div');
