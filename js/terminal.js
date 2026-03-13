@@ -1,9 +1,18 @@
 // ============================================
 // Simple Interaction System - 点赞和评论功能
+// 基于 Supabase 实现数据共享
 // ============================================
+
+// Supabase 配置
+const SUPABASE_URL = 'https://aowlaxllqciypommrcgo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvd2xheGxscWNpeXBvbW1yY2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzODA1MTksImV4cCI6MjA4ODk1NjUxOX0.q8rM0PAC1_GpwrCZBMGnufBCqHruLlHLktadwmLHMhA';
 
 class SimpleInteraction {
     constructor() {
+        // 初始化 Supabase 客户端
+        this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 本地缓存（用于离线显示）
         this.likes = JSON.parse(localStorage.getItem('lybx_likes')) || {};
         this.comments = JSON.parse(localStorage.getItem('lybx_comments')) || {};
         this.currentUser = localStorage.getItem('lybx_username') || '访客';
@@ -12,12 +21,86 @@ class SimpleInteraction {
         this.init();
     }
 
-    init() {
+    async init() {
+        // 从 Supabase 加载数据
+        await this.loadDataFromSupabase();
+
         this.createInteractionButton();
         this.createInteractionModal();
         this.addProjectLikeButtons();
         this.addBlogInteractions();
         this.bindEvents();
+    }
+
+    // 从 Supabase 加载数据
+    async loadDataFromSupabase() {
+        try {
+            // 加载 likes
+            const { data: likesData, error: likesError } = await this.supabase
+                .from('likes')
+                .select('*');
+
+            if (likesError) throw likesError;
+
+            // 处理 likes 数据
+            this.likes = {};
+            likesData.forEach(like => {
+                const key = like.target_name;
+                if (!this.likes[key]) {
+                    this.likes[key] = { count: 0, users: [] };
+                }
+                this.likes[key].count++;
+                this.likes[key].users.push(like.username);
+            });
+
+            // 加载 comments
+            const { data: commentsData, error: commentsError } = await this.supabase
+                .from('comments')
+                .select('*')
+                .order('created_at', { ascending: true });
+
+            if (commentsError) throw commentsError;
+
+            // 处理 comments 数据
+            this.comments = {};
+            commentsData.forEach(comment => {
+                const key = comment.target_name;
+                if (!this.comments[key]) {
+                    this.comments[key] = [];
+                }
+                this.comments[key].push({
+                    author: comment.username,
+                    text: comment.content,
+                    timestamp: new Date(comment.created_at).toLocaleString()
+                });
+            });
+
+            // 保存到本地缓存
+            this.saveData();
+            console.log('数据已从 Supabase 加载');
+
+            // 刷新界面显示
+            this.refreshAllViews();
+
+        } catch (error) {
+            console.error('从 Supabase 加载数据失败:', error);
+            // 使用本地缓存数据
+        }
+    }
+
+    // 刷新所有视图
+    refreshAllViews() {
+        if (this.projectsList) {
+            this.renderProjects();
+        }
+        this.updateProjectLikeButtons();
+
+        // 刷新博客互动
+        const blogInteractions = document.querySelectorAll('.blog-interaction');
+        blogInteractions.forEach(container => {
+            const blogName = container.getAttribute('data-blog');
+            this.updateBlogStats(blogName, container);
+        });
     }
 
     // 创建交互按钮
@@ -173,27 +256,43 @@ class SimpleInteraction {
     }
 
     // 切换点赞
-    toggleLike(projectName) {
+    async toggleLike(projectName) {
         if (!this.likes[projectName]) {
             this.likes[projectName] = { count: 0, users: [] };
         }
 
         const isLiked = this.likes[projectName].users.includes(this.currentUser);
 
-        if (isLiked) {
-            this.likes[projectName].count--;
-            this.likes[projectName].users = this.likes[projectName].users.filter(user => user !== this.currentUser);
-        } else {
-            this.likes[projectName].count++;
-            this.likes[projectName].users.push(this.currentUser);
+        try {
+            if (isLiked) {
+                // 取消点赞 - 从 Supabase 删除
+                await this.supabase
+                    .from('likes')
+                    .delete()
+                    .match({ target_type: 'project', target_name: projectName, username: this.currentUser });
+
+                this.likes[projectName].count--;
+                this.likes[projectName].users = this.likes[projectName].users.filter(user => user !== this.currentUser);
+            } else {
+                // 点赞 - 插入到 Supabase
+                await this.supabase
+                    .from('likes')
+                    .insert({ target_type: 'project', target_name: projectName, username: this.currentUser });
+
+                this.likes[projectName].count++;
+                this.likes[projectName].users.push(this.currentUser);
+            }
+
+            this.saveData();
+            this.renderProjects();
+            this.updateProjectLikeButtons();
+
+            const message = isLiked ? `已取消点赞 ${projectName}` : `成功点赞 ${projectName}`;
+            this.showNotification(message);
+        } catch (error) {
+            console.error('点赞操作失败:', error);
+            this.showNotification('操作失败，请稍后重试');
         }
-
-        this.saveData();
-        this.renderProjects();
-        this.updateProjectLikeButtons();
-
-        const message = isLiked ? `已取消点赞 ${projectName}` : `成功点赞 ${projectName}`;
-        this.showNotification(message);
     }
 
     // 打开评论对话框
@@ -269,19 +368,36 @@ class SimpleInteraction {
     }
 
     // 添加评论
-    addComment(projectName, text) {
-        if (!this.comments[projectName]) {
-            this.comments[projectName] = [];
+    async addComment(projectName, text) {
+        try {
+            // 插入到 Supabase
+            const { data, error } = await this.supabase
+                .from('comments')
+                .insert({
+                    target_type: 'project',
+                    target_name: projectName,
+                    username: this.currentUser,
+                    content: text
+                });
+
+            if (error) throw error;
+
+            if (!this.comments[projectName]) {
+                this.comments[projectName] = [];
+            }
+
+            this.comments[projectName].push({
+                author: this.currentUser,
+                text: text,
+                timestamp: new Date().toLocaleString()
+            });
+
+            this.saveData();
+            this.showNotification('评论已添加');
+        } catch (error) {
+            console.error('评论添加失败:', error);
+            this.showNotification('评论失败，请稍后重试');
         }
-
-        this.comments[projectName].push({
-            author: this.currentUser,
-            text: text,
-            timestamp: new Date().toLocaleString()
-        });
-
-        this.saveData();
-        this.showNotification('评论已添加');
     }
 
     // 保存用户名
@@ -413,42 +529,72 @@ class SimpleInteraction {
     }
 
     // 切换博客点赞
-    toggleBlogLike(blogName, container) {
+    async toggleBlogLike(blogName, container) {
         if (!this.likes[blogName]) {
             this.likes[blogName] = { count: 0, users: [] };
         }
 
         const isLiked = this.likes[blogName].users.includes(this.currentUser);
 
-        if (isLiked) {
-            this.likes[blogName].count--;
-            this.likes[blogName].users = this.likes[blogName].users.filter(user => user !== this.currentUser);
-        } else {
-            this.likes[blogName].count++;
-            this.likes[blogName].users.push(this.currentUser);
+        try {
+            if (isLiked) {
+                // 取消点赞
+                await this.supabase
+                    .from('likes')
+                    .delete()
+                    .match({ target_type: 'blog', target_name: blogName, username: this.currentUser });
+
+                this.likes[blogName].count--;
+                this.likes[blogName].users = this.likes[blogName].users.filter(user => user !== this.currentUser);
+            } else {
+                // 点赞
+                await this.supabase
+                    .from('likes')
+                    .insert({ target_type: 'blog', target_name: blogName, username: this.currentUser });
+
+                this.likes[blogName].count++;
+                this.likes[blogName].users.push(this.currentUser);
+            }
+
+            this.saveData();
+            this.updateBlogStats(blogName, container);
+
+            const message = isLiked ? `已取消点赞 ${blogName}` : `成功点赞 ${blogName}`;
+            this.showNotification(message);
+        } catch (error) {
+            console.error('博客点赞操作失败:', error);
+            this.showNotification('操作失败，请稍后重试');
         }
-
-        this.saveData();
-        this.updateBlogStats(blogName, container);
-
-        const message = isLiked ? `已取消点赞 ${blogName}` : `成功点赞 ${blogName}`;
-        this.showNotification(message);
     }
 
     // 添加博客评论
-    addBlogComment(blogName, text) {
-        if (!this.comments[blogName]) {
-            this.comments[blogName] = [];
+    async addBlogComment(blogName, text) {
+        try {
+            await this.supabase
+                .from('comments')
+                .insert({
+                    target_type: 'blog',
+                    target_name: blogName,
+                    username: this.currentUser,
+                    content: text
+                });
+
+            if (!this.comments[blogName]) {
+                this.comments[blogName] = [];
+            }
+
+            this.comments[blogName].push({
+                author: this.currentUser,
+                text: text,
+                timestamp: new Date().toLocaleString()
+            });
+
+            this.saveData();
+            this.showNotification('评论已添加');
+        } catch (error) {
+            console.error('博客评论添加失败:', error);
+            this.showNotification('评论失败，请稍后重试');
         }
-
-        this.comments[blogName].push({
-            author: this.currentUser,
-            text: text,
-            timestamp: new Date().toLocaleString()
-        });
-
-        this.saveData();
-        this.showNotification('评论已添加');
     }
 
     // 渲染博客评论
