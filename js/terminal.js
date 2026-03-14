@@ -1142,13 +1142,6 @@ class SimpleInteraction {
         this.updateAuthorStatus();
     }
 
-    // 删除作者ID验证相关代码（已简化为用户名判断）
-            }
-        } catch (e) {
-            console.log('检查作者ID表失败');
-        }
-    }
-
     // 确保公告表存在
     async ensureAnnouncementsTable() {
         try {
