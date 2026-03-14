@@ -1136,8 +1136,10 @@ class SimpleInteraction {
         // 直接根据用户名判断，"绿意不息"为专属作者
         if (this.currentUser === '绿意不息') {
             this.isAuthor = true;
-            this.updateAuthorStatus();
+        } else {
+            this.isAuthor = false;
         }
+        this.updateAuthorStatus();
     }
 
     // 删除作者ID验证相关代码（已简化为用户名判断）
