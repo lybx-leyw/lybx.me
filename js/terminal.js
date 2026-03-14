@@ -23,9 +23,9 @@ class SimpleInteraction {
             localStorage.setItem('lybx_user_id', this.userId);
         }
 
-        // 作者专属 ID
-        this.authorId = localStorage.getItem('lybx_author_id') || '';
-        this.isAuthor = localStorage.getItem('lybx_is_author') === 'true';
+
+        // 作者身份：根据用户名判断，"绿意不息"为专属作者
+        this.isAuthor = false;
 
         // 用户登录信息
         this.currentUser = localStorage.getItem('lybx_username') || '';
@@ -45,6 +45,9 @@ class SimpleInteraction {
 
         // 加载公告
         await this.loadAnnouncement();
+
+        // 检查作者身份（根据当前登录用户）
+        await this.checkAuthorStatus();
 
         this.createInteractionButton();
         this.createInteractionModal();
@@ -308,7 +311,6 @@ class SimpleInteraction {
         this.userInput = modal.querySelector('.user-input');
         this.passwordInput = modal.querySelector('.password-input');
         this.projectsList = modal.querySelector('#projectsList');
-        this.authorIdInput = modal.querySelector('.author-id-input');
         this.authorStatus = modal.querySelector('.author-status');
         this.announcementSection = modal.querySelector('#announcementSection');
         this.announcementContent = modal.querySelector('#announcementContent');
@@ -339,13 +341,6 @@ class SimpleInteraction {
             });
         }
 
-        // 绑定作者ID验证按钮（仅旧版界面需要）
-        const verifyAuthorBtn = modal.querySelector('.btn-verify-author');
-        if (verifyAuthorBtn) {
-            verifyAuthorBtn.addEventListener('click', () => {
-                this.verifyAuthorId();
-            });
-        }
 
         // 渲染项目列表
         this.renderProjects();
@@ -1138,100 +1133,14 @@ class SimpleInteraction {
 
     // 检查作者身份状态（登录时自动调用）
     async checkAuthorStatus() {
-        // 检查本地是否已有作者ID
-        const savedAuthorId = localStorage.getItem('lybx_author_id');
-        if (savedAuthorId) {
-            // 验证本地存储的作者ID是否仍然有效
-            try {
-                const { data, error } = await this.supabase
-                    .from('author_ids')
-                    .select('*')
-                    .eq('author_id', savedAuthorId)
-                    .single();
-
-                if (data) {
-                    this.authorId = savedAuthorId;
-                    this.isAuthor = true;
-                    localStorage.setItem('lybx_is_author', 'true');
-                    this.updateAuthorStatus();
-                    return;
-                }
-            } catch (e) {
-                // 作者ID无效，清除
-            }
-        }
-
-        // 如果是"绿意不息"用户，自动检查
+        // 直接根据用户名判断，"绿意不息"为专属作者
         if (this.currentUser === '绿意不息') {
-            try {
-                const { data } = await this.supabase
-                    .from('author_ids')
-                    .select('*')
-                    .limit(1)
-                    .single();
-
-                if (data) {
-                    this.authorId = data.author_id;
-                    this.isAuthor = true;
-                    localStorage.setItem('lybx_author_id', data.author_id);
-                    localStorage.setItem('lybx_is_author', 'true');
-                    this.updateAuthorStatus();
-                }
-            } catch (e) {
-                console.log('自动检查作者状态失败');
-            }
-        }
-    }
-
-    // 验证作者 ID
-    async verifyAuthorId() {
-        const authorId = this.authorIdInput.value.trim();
-        if (!authorId) {
-            this.showNotification('请输入作者ID');
-            return;
-        }
-
-        // 从 Supabase 获取作者 ID 列表
-        try {
-            const { data, error } = await this.supabase
-                .from('author_ids')
-                .select('*')
-                .eq('author_id', authorId)
-                .single();
-
-            if (error || !data) {
-                this.showNotification('作者ID验证失败');
-                return;
-            }
-
-            // 验证成功
-            this.authorId = authorId;
             this.isAuthor = true;
-            localStorage.setItem('lybx_author_id', authorId);
-            localStorage.setItem('lybx_is_author', 'true');
             this.updateAuthorStatus();
-            this.showNotification('作者身份验证成功！');
-
-            // 创建作者 ID 表（如果不存在）
-            await this.ensureAuthorIdsTable();
-            await this.ensureAnnouncementsTable();
-        } catch (error) {
-            console.error('作者验证失败:', error);
-            this.showNotification('作者ID验证失败');
         }
     }
 
-    // 确保作者ID表存在
-    async ensureAuthorIdsTable() {
-        try {
-            // 尝试插入一个默认作者ID（如果表为空或不存在会失败，这是正常的）
-            const { error } = await this.supabase
-                .from('author_ids')
-                .select('id')
-                .limit(1);
-
-            if (error && error.code === '42P01') {
-                console.log('作者ID表不存在，需要在Supabase中创建');
+    // 删除作者ID验证相关代码（已简化为用户名判断）
             }
         } catch (e) {
             console.log('检查作者ID表失败');
