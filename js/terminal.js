@@ -1035,6 +1035,8 @@ class SimpleInteraction {
 
     // 删除评论
     async deleteComment(projectName, userId, index) {
+        console.log('删除评论检查:', { isAuthor: this.isAuthor, userId, currentUserId: this.userId, currentUser: this.currentUser });
+
         if (!this.isAuthor && userId !== this.userId) {
             this.showNotification('你没有权限删除此评论');
             return;
@@ -1045,19 +1047,30 @@ class SimpleInteraction {
             const comments = this.comments[projectName] || [];
             const commentToDelete = comments[index];
 
+            console.log('删除评论:', commentToDelete);
+
+            let deleteResult;
             if (!commentToDelete || !commentToDelete.id) {
                 // 如果没有唯一ID，使用旧的匹配方式
-                await this.supabase
+                deleteResult = await this.supabase
                     .from('comments')
                     .delete()
                     .eq('target_name', projectName)
                     .eq('user_id', userId);
             } else {
                 // 使用唯一ID删除
-                await this.supabase
+                deleteResult = await this.supabase
                     .from('comments')
                     .delete()
                     .eq('id', commentToDelete.id);
+            }
+
+            console.log('删除结果:', deleteResult);
+
+            if (deleteResult.error) {
+                console.error('Supabase删除失败:', deleteResult.error);
+                this.showNotification('删除失败: ' + deleteResult.error.message);
+                return;
             }
 
             // 从本地删除
@@ -1067,11 +1080,11 @@ class SimpleInteraction {
 
             this.saveData();
             this.showNotification('评论已删除');
-            
+
             // 刷新评论显示
             this.renderComments(projectName);
             this.renderProjects();
-            
+
             // 刷新博客评论
             this.refreshAllViews();
         } catch (error) {
